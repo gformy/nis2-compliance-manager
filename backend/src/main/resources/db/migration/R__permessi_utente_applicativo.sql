@@ -43,6 +43,13 @@ BEGIN
         END IF;
     END LOOP;
 
+    -- Sequenze in sola lettura: dopo un inserimento dalle viste ISA (AssetCompleto,
+    -- ServizioCompleto) il backend legge seq_elemento_critico.CURRVAL per conoscere
+    -- l'id appena creato, perche' una vista con trigger INSTEAD OF non supporta RETURNING.
+    FOR s IN (SELECT sequence_name FROM user_sequences WHERE sequence_name NOT LIKE 'ISEQ$$%') LOOP
+        concedi(s.sequence_name, 'SELECT');
+    END LOOP;
+
     concedi('fn_utente_corrente', 'EXECUTE');
 END;
 /
