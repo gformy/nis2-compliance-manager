@@ -12,6 +12,9 @@ import { ElencoSoggetti } from './pagine/ElencoSoggetti'
 import { SchedaConformita } from './pagine/conformita/SchedaConformita'
 import { DettaglioIncidente } from './pagine/incidenti/DettaglioIncidente'
 import { ElencoIncidenti } from './pagine/incidenti/ElencoIncidenti'
+import { ConfrontoInvii } from './pagine/invii/ConfrontoInvii'
+import { DettaglioInvio } from './pagine/invii/DettaglioInvio'
+import { ElencoInvii } from './pagine/invii/ElencoInvii'
 import { CatalogoFornitori } from './pagine/fornitori/CatalogoFornitori'
 import { DettaglioFornitore } from './pagine/fornitori/DettaglioFornitore'
 import { SchedaFornitori } from './pagine/fornitori/SchedaFornitori'
@@ -38,6 +41,9 @@ const router = createBrowserRouter([
           { path: 'conformita', element: <SchedaConformita /> },
           { path: 'incidenti', element: <ElencoIncidenti /> },
           { path: 'incidenti/:incidenteId', element: <DettaglioIncidente /> },
+          { path: 'invii', element: <ElencoInvii /> },
+          { path: 'invii/confronto', element: <ConfrontoInvii /> },
+          { path: 'invii/:invioId', element: <DettaglioInvio /> },
         ],
       },
       { path: '/fornitori', element: <CatalogoFornitori /> },

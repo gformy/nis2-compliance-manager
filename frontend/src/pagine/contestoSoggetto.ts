@@ -5,6 +5,8 @@ import type { Soggetto } from '../api/soggetti'
 export interface ContestoSoggetto {
   soggetto: Soggetto
   modificabile: boolean
+  /** Registrare invii ACN: solo referente NIS e amministratore. */
+  inviabile: boolean
   amministratore: boolean
 }
 

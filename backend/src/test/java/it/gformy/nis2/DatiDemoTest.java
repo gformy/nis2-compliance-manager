@@ -48,4 +48,15 @@ class DatiDemoTest extends OracleTestBase {
         assertThat(incidenti).isEqualTo(2);
         assertThat(notifiche).isEqualTo(3);
     }
+
+    @Test
+    void ilPrimoInvioDemoDichiaraLInventarioDellAziendaAlfa() {
+        Integer elementi = jdbc.queryForObject("""
+                SELECT COUNT(*) FROM ProfiloACN_ElementiCritici_AsOf p
+                JOIN SoggettoNIS s ON s.id = p.soggetto_nis_id
+                WHERE s.codice_fiscale = '01234567890' AND p.stato_al_momento_invio = 'ATTIVO'
+                """, Integer.class);
+
+        assertThat(elementi).isEqualTo(6);
+    }
 }

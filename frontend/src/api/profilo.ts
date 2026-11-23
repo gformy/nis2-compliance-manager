@@ -38,6 +38,14 @@ export function puoModificare(profilo: Profilo | undefined, soggettoId: number):
   return ruolo === 'REFERENTE_NIS' || ruolo === 'OPERATORE'
 }
 
+/** Registrare un invio ACN spetta al referente NIS (o all'amministratore). */
+export function puoInviare(profilo: Profilo | undefined, soggettoId: number): boolean {
+  if (!profilo) {
+    return false
+  }
+  return profilo.amministratore || profilo.soggetti.find((s) => s.soggettoId === soggettoId)?.ruolo === 'REFERENTE_NIS'
+}
+
 export function useProfilo() {
   const api = useApi()
   return useQuery({

@@ -45,7 +45,15 @@ Apri http://localhost:5173 e accedi con un utente dimostrativo. Al primo accesso
 | `operatore.demo` | `Demo-Nis2-2026` | Operatore sull'azienda Alfa |
 | `revisore.demo` | `Demo-Nis2-2026` | Revisore (sola lettura) sull'azienda Alfa |
 
-Il profilo demo carica anche l'inventario dell'azienda Alfa (quattro asset, due servizi e i loro collegamenti) e tre fornitori con le relative dipendenze.
+Il profilo demo carica anche, per l'azienda Alfa:
+
+- l'inventario: quattro asset, due servizi e i loro collegamenti;
+- tre fornitori con le relative dipendenze;
+- le valutazioni di quattro requisiti ACN;
+- due incidenti: uno chiuso, con tutte le trasmissioni al CSIRT, e uno aperto da poche ore, con la pre-notifica in scadenza;
+- un primo invio ACN.
+
+Registrare un invio spetta al referente NIS. Tra gli utenti demo può farlo solo `admin.demo`: modifica qualcosa nell'inventario, registra un secondo invio e confronta i due dalla scheda *Invii ACN*.
 
 Ogni utente vede solo i soggetti a cui è assegnato: `operatore.demo` e `revisore.demo` vedono l'azienda Alfa ma non il Comune di Esempio. L'amministratore vede tutto e assegna gli accessi dalla pagina del soggetto.
 
