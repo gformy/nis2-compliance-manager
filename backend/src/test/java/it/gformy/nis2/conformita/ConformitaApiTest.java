@@ -79,23 +79,20 @@ class ConformitaApiTest extends ApiTestBase {
 
     @Test
     void unRequisitoNonApplicabileAlTipoDiSoggettoNonSiValuta() {
-        long requisitoSoloEssenziali = jdbcProprietario().queryForObject("""
-                SELECT id FROM RequisitoMisura WHERE codice = 'ID.AM-01.1'""", Long.class);
+        // Requisito di prova applicabile solo agli importanti: i soggetti dei test sono essenziali,
+        // quindi non cambia i conteggi degli altri test
         jdbcProprietario().update("""
                 INSERT INTO RequisitoMisura (codice, misura_id, numero_punto, testo)
-                SELECT 'ID.AM-01.9', misura_id, 9, 'Requisito di prova solo per gli essenziali'
-                FROM RequisitoMisura WHERE id = ?""", requisitoSoloEssenziali);
+                SELECT 'ID.AM-01.9', misura_id, 9, 'Requisito di prova solo per gli importanti'
+                FROM RequisitoMisura WHERE codice = 'ID.AM-01.1'""");
         jdbcProprietario().update("""
                 INSERT INTO MisuraApplicabilita (requisito_id, tipo_soggetto_id)
                 SELECT rm.id, ts.id FROM RequisitoMisura rm, TipoSoggettoNIS ts
-                WHERE rm.codice = 'ID.AM-01.9' AND ts.codice = 'ESSENZIALE'""");
-        long importante = soggettoDiGiorgio();
-        jdbc.update("""
-                UPDATE SoggettoNIS SET tipo_soggetto_id = (SELECT id FROM TipoSoggettoNIS WHERE codice = 'IMPORTANTE')
-                WHERE id = ?""", importante);
+                WHERE rm.codice = 'ID.AM-01.9' AND ts.codice = 'IMPORTANTE'""");
+        long essenziale = soggettoDiGiorgio();
 
-        Risposta elenco = get("/api/v1/soggetti/" + importante + "/adempimenti", GIORGIO);
-        Risposta valutazione = valuta(importante, "ID.AM-01.9", "ATTUATO", GIORGIO);
+        Risposta elenco = get("/api/v1/soggetti/" + essenziale + "/adempimenti", GIORGIO);
+        Risposta valutazione = valuta(essenziale, "ID.AM-01.9", "ATTUATO", GIORGIO);
 
         assertThat(elenco.<List<String>>json("$[*].codice")).doesNotContain("ID.AM-01.9");
         assertThat(valutazione.stato()).isEqualTo(404);
