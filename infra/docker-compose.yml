@@ -8,7 +8,7 @@ services:
   oracle:
     image: gvenzl/oracle-free:23-slim-faststart
     ports:
-      - "1521:1521"
+      - "127.0.0.1:1521:1521"   # solo da questo computer, non dalla rete
     environment:
       ORACLE_PASSWORD: ${ORACLE_PASSWORD:?imposta ORACLE_PASSWORD in .env}
       APP_USER: ${DB_OWNER_USER:-nis2_owner}
@@ -29,7 +29,7 @@ services:
     image: quay.io/keycloak/keycloak:26.4
     command: ["start-dev", "--import-realm"]
     ports:
-      - "8180:8080"
+      - "127.0.0.1:8180:8080"
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USER:-admin}
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?imposta KEYCLOAK_ADMIN_PASSWORD in .env}
