@@ -46,6 +46,12 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
+        <!-- Sicurezza: il backend valida i token JWT emessi da Keycloak -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security-oauth2-resource-server</artifactId>
+        </dependency>
+
         <!-- Migrazioni dello schema su Oracle -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

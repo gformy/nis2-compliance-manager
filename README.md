@@ -26,15 +26,25 @@ cp .env.example .env        # poi cambia le password
 docker compose up -d
 
 # 2. Backend: applica le migrazioni Flyway e avvia le API su :8080
+#    (il profilo demo aggiunge due soggetti di esempio)
 cd ../backend
 set -a; source ../infra/.env; set +a
-./mvnw spring-boot:run
+./mvnw spring-boot:run -Dspring-boot.run.profiles=demo
 
 # 3. Frontend su :5173
 cd ../frontend
 npm install
 npm run dev
 ```
+
+Apri http://localhost:5173 e accedi con un utente dimostrativo. Al primo accesso Keycloak chiede di cambiare la password.
+
+| Utente | Password iniziale | Ruolo |
+| --- | --- | --- |
+| `admin.demo` | `Demo-Nis2-2026` | Amministratore |
+| `operatore.demo` | `Demo-Nis2-2026` | Operatore |
+
+Gli utenti si trovano in `infra/keycloak/nis2-realm.json` e servono solo in locale.
 
 I test del backend (`./mvnw verify`) avviano da soli un Oracle Database Free in container con Testcontainers.
 

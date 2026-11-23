@@ -4,6 +4,8 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -17,7 +19,8 @@ import org.testcontainers.utility.MountableFile;
  * condiviso da tutte le classi di test, con la stessa configurazione a due
  * utenti dell'ambiente reale (proprietario per Flyway, applicativo per il backend).
  */
-@SpringBootTest
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@Import(TokenDiTest.class)
 public abstract class OracleTestBase {
 
     static final String PROPRIETARIO = "nis2_owner";
