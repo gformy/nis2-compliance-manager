@@ -27,7 +27,7 @@ jobs:
           java-version: '25'
           cache: maven
       - name: Build e test (Testcontainers avvia Oracle Database Free)
-        run: mvn -B -ntp verify
+        run: ./mvnw -B -ntp verify
 
   frontend:
     name: Frontend (React, TypeScript)

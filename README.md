@@ -17,7 +17,7 @@ Il database nasce dal Project Work 19 del corso di laurea in Informatica per le 
 
 ## Avvio in locale
 
-Servono Docker, Java 25, Maven 3.9 e Node.js 22.
+Servono Docker, Java 25 e Node.js 22. Maven non serve: lo scarica `./mvnw` (Maven Wrapper).
 
 ```bash
 # 1. Database e Keycloak
@@ -28,7 +28,7 @@ docker compose up -d
 # 2. Backend: applica le migrazioni Flyway e avvia le API su :8080
 cd ../backend
 set -a; source ../infra/.env; set +a
-mvn spring-boot:run
+./mvnw spring-boot:run
 
 # 3. Frontend su :5173
 cd ../frontend
@@ -36,7 +36,7 @@ npm install
 npm run dev
 ```
 
-I test del backend (`mvn verify`) avviano da soli un Oracle Database Free in container con Testcontainers.
+I test del backend (`./mvnw verify`) avviano da soli un Oracle Database Free in container con Testcontainers.
 
 ## Struttura
 
