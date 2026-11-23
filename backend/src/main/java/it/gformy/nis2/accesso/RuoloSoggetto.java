@@ -4,16 +4,23 @@ package it.gformy.nis2.accesso;
 public enum RuoloSoggetto {
 
     /** Punto di contatto verso ACN: tutto sul proprio soggetto. */
-    REFERENTE_NIS(true),
+    REFERENTE_NIS(true, true),
     /** Aggiorna inventario, fornitori, adempimenti e incidenti. */
-    OPERATORE(true),
+    OPERATORE(true, false),
     /** Sola lettura, per audit e consulenti. */
-    REVISORE(false);
+    REVISORE(false, false);
 
     private final boolean puoModificare;
+    private final boolean puoInviare;
 
-    RuoloSoggetto(boolean puoModificare) {
+    RuoloSoggetto(boolean puoModificare, boolean puoInviare) {
         this.puoModificare = puoModificare;
+        this.puoInviare = puoInviare;
+    }
+
+    /** Registrare un invio alla piattaforma ACN spetta al punto di contatto. */
+    public boolean puoInviare() {
+        return puoInviare;
     }
 
     public boolean puoModificare() {
