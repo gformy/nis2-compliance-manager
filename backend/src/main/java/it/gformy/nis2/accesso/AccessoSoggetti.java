@@ -45,6 +45,13 @@ public class AccessoSoggetti {
         return ruoloObbligatorio(soggettoId).puoModificare();
     }
 
+    public boolean puoInviare(long soggettoId) {
+        if (amministratore()) {
+            return true;
+        }
+        return ruoloObbligatorio(soggettoId).puoInviare();
+    }
+
     public Optional<RuoloSoggetto> ruolo(long soggettoId) {
         return assegnazioni.ruolo(utente(), soggettoId);
     }

@@ -271,3 +271,11 @@ BEGIN
     END IF;
 END;
 /
+
+-- Primo invio dell'azienda Alfa: fotografa il profilo appena caricato. Dopo una
+-- modifica, un nuovo invio (come admin.demo) mostra le differenze nel confronto.
+INSERT INTO InvioACN (soggetto_nis_id, tipo_invio, periodo_riferimento, note, registrato_da)
+SELECT s.id, 'REGISTRAZIONE', 2026, 'Prima registrazione sulla piattaforma ACN', 'admin.demo'
+FROM SoggettoNIS s
+WHERE s.codice_fiscale = '01234567890'
+  AND NOT EXISTS (SELECT 1 FROM InvioACN i WHERE i.soggetto_nis_id = s.id);

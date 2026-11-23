@@ -1,7 +1,7 @@
 import { Box, Breadcrumbs, Link, Stack, Tab, Tabs, Typography } from '@mui/material'
 import { Link as RouterLink, Outlet, useLocation, useParams } from 'react-router'
 import { ErroreApi } from '../api/client'
-import { puoModificare, useProfilo } from '../api/profilo'
+import { puoInviare, puoModificare, useProfilo } from '../api/profilo'
 import { useSoggetto } from '../api/soggetti'
 import { StatoCaricamento } from '../componenti/StatoCaricamento'
 import { useContestoSoggetto, type ContestoSoggetto } from './contestoSoggetto'
@@ -16,6 +16,7 @@ const schede = [
   { percorso: 'fornitori', etichetta: 'Fornitori' },
   { percorso: 'conformita', etichetta: 'Conformità' },
   { percorso: 'incidenti', etichetta: 'Incidenti' },
+  { percorso: 'invii', etichetta: 'Invii ACN' },
 ]
 
 /** Intestazione del soggetto con le schede; il contenuto della scheda arriva dalle rotte figlie. */
@@ -68,6 +69,7 @@ export function DettaglioSoggetto() {
               {
                 soggetto,
                 modificabile: puoModificare(profilo, soggetto.id),
+                inviabile: puoInviare(profilo, soggetto.id),
                 amministratore: profilo?.amministratore ?? false,
               } satisfies ContestoSoggetto
             }

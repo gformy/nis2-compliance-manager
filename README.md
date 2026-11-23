@@ -45,7 +45,15 @@ Apri http://localhost:5173 e accedi con un utente dimostrativo. Al primo accesso
 | `operatore.demo` | `Demo-Nis2-2026` | Operatore sull'azienda Alfa |
 | `revisore.demo` | `Demo-Nis2-2026` | Revisore (sola lettura) sull'azienda Alfa |
 
-Il profilo demo carica anche l'inventario dell'azienda Alfa (quattro asset, due servizi e i loro collegamenti) e tre fornitori con le relative dipendenze.
+Il profilo demo carica anche, per l'azienda Alfa:
+
+- l'inventario: quattro asset, due servizi e i loro collegamenti;
+- tre fornitori con le relative dipendenze;
+- le valutazioni di quattro requisiti ACN;
+- due incidenti: uno chiuso, con tutte le trasmissioni al CSIRT, e uno aperto da poche ore, con la pre-notifica in scadenza;
+- un primo invio ACN.
+
+Registrare un invio spetta al referente NIS. Tra gli utenti demo può farlo solo `admin.demo`: modifica qualcosa nell'inventario, registra un secondo invio e confronta i due dalla scheda *Invii ACN*.
 
 Ogni utente vede solo i soggetti a cui è assegnato: `operatore.demo` e `revisore.demo` vedono l'azienda Alfa ma non il Comune di Esempio. L'amministratore vede tutto e assegna gli accessi dalla pagina del soggetto.
 
@@ -75,6 +83,7 @@ Lo schema è quello del PW 19, applicato da Flyway:
 | `V6__codici_cpv` | Catalogo dei codici CPV per i fornitori rilevanti |
 | `V7__misure_sicurezza` | Misure di sicurezza e requisiti ACN delle specifiche di base (estratto del PW) |
 | `V8__gestione_incidenti` | Titolo, stato e autore degli incidenti; una sola pre-notifica, notifica e relazione finale per incidente |
+| `V9__invii_acn` | Autore e note degli invii; viste AS OF dei fornitori e degli adempimenti con chiavi stabili per il confronto |
 | `R__permessi_utente_applicativo` | Permessi minimi dell'utente con cui si collega il backend |
 
 Il backend usa due utenti Oracle: `nis2_owner` possiede lo schema e lo usa solo Flyway; `nis2_app` legge e scrive i dati, senza poter cambiare la struttura né cancellare asset e servizi.
