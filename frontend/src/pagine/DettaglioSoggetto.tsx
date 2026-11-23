@@ -15,6 +15,7 @@ const schede = [
   { percorso: 'servizi', etichetta: 'Servizi' },
   { percorso: 'fornitori', etichetta: 'Fornitori' },
   { percorso: 'conformita', etichetta: 'Conformità' },
+  { percorso: 'incidenti', etichetta: 'Incidenti' },
 ]
 
 /** Intestazione del soggetto con le schede; il contenuto della scheda arriva dalle rotte figlie. */

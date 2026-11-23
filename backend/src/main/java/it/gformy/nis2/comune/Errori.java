@@ -15,6 +15,13 @@ public final class Errori {
                 ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, dettaglio), null);
     }
 
+    /** 400 con la stessa forma degli errori di validazione: {"errori": {campo: messaggio}}. */
+    public static ErrorResponseException nonValido(String campo, String messaggio) {
+        ProblemDetail problema = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Dati non validi");
+        problema.setProperty("errori", java.util.Map.of(campo, messaggio));
+        return new ErrorResponseException(HttpStatus.BAD_REQUEST, problema, null);
+    }
+
     public static ErrorResponseException nonTrovato(String descrizione) {
         return new ErrorResponseException(HttpStatus.NOT_FOUND,
                 ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, descrizione + " non trovato"), null);

@@ -20,8 +20,8 @@ import {
   TableRow,
   TextField,
   Typography,
-} from "@mui/material";
-import { useState } from "react";
+} from '@mui/material'
+import { useState } from 'react'
 import {
   etichetteStato,
   useRequisiti,
@@ -30,17 +30,17 @@ import {
   useVersioniAdempimento,
   type Requisito,
   type StatoAdempimento,
-} from "../../api/conformita";
-import { StatoCaricamento } from "../../componenti/StatoCaricamento";
-import { useContestoSoggetto } from "../contestoSoggetto";
-import { data } from "../inventario/date";
-import { coloreStato, raggruppaPerMisura } from "./conformita";
+} from '../../api/conformita'
+import { StatoCaricamento } from '../../componenti/StatoCaricamento'
+import { useContestoSoggetto } from '../contestoSoggetto'
+import { data } from '../inventario/date'
+import { coloreStato, raggruppaPerMisura } from './conformita'
 
 export function SchedaConformita() {
-  const { soggetto, modificabile } = useContestoSoggetto();
-  const requisiti = useRequisiti(soggetto.id);
-  const riepilogo = useRiepilogo(soggetto.id);
-  const [storico, setStorico] = useState<Requisito | null>(null);
+  const { soggetto, modificabile } = useContestoSoggetto()
+  const requisiti = useRequisiti(soggetto.id)
+  const riepilogo = useRiepilogo(soggetto.id)
+  const [storico, setStorico] = useState<Requisito | null>(null)
 
   return (
     <Stack spacing={3}>
@@ -52,7 +52,7 @@ export function SchedaConformita() {
           <StatoCaricamento errore={riepilogo.error} />
         ) : (
           <>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <LinearProgress
                 variant="determinate"
                 value={riepilogo.data.percentualeAttuazione}
@@ -60,38 +60,18 @@ export function SchedaConformita() {
                 aria-label="Percentuale di attuazione"
               />
               <Typography variant="h5" component="p">
-                {riepilogo.data.percentualeAttuazione.toLocaleString("it-IT")}%
+                {riepilogo.data.percentualeAttuazione.toLocaleString('it-IT')}%
               </Typography>
             </Box>
-            <Stack
-              direction="row"
-              spacing={1}
-              useFlexGap
-              sx={{ mt: 2, flexWrap: "wrap" }}
-            >
-              <Chip
-                color="success"
-                label={`Attuati ${riepilogo.data.complessivo.attuati}`}
-              />
-              <Chip
-                color="warning"
-                label={`Parziali ${riepilogo.data.complessivo.parziali}`}
-              />
-              <Chip
-                color="error"
-                label={`Non attuati ${riepilogo.data.complessivo.nonAttuati}`}
-              />
-              <Chip
-                label={`Non applicabili ${riepilogo.data.complessivo.nonApplicabili}`}
-              />
-              <Chip
-                variant="outlined"
-                label={`Da valutare ${riepilogo.data.complessivo.nonValutati}`}
-              />
+            <Stack direction="row" spacing={1} useFlexGap sx={{ mt: 2, flexWrap: 'wrap' }}>
+              <Chip color="success" label={`Attuati ${riepilogo.data.complessivo.attuati}`} />
+              <Chip color="warning" label={`Parziali ${riepilogo.data.complessivo.parziali}`} />
+              <Chip color="error" label={`Non attuati ${riepilogo.data.complessivo.nonAttuati}`} />
+              <Chip label={`Non applicabili ${riepilogo.data.complessivo.nonApplicabili}`} />
+              <Chip variant="outlined" label={`Da valutare ${riepilogo.data.complessivo.nonValutati}`} />
             </Stack>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              Un requisito parzialmente attuato vale metà; i non applicabili non
-              entrano nel calcolo.
+              Un requisito parzialmente attuato vale metà; i non applicabili non entrano nel calcolo.
             </Typography>
           </>
         )}
@@ -102,9 +82,7 @@ export function SchedaConformita() {
       ) : (
         <Box>
           {raggruppaPerMisura(requisiti.data).map((misura) => {
-            const percentuale = riepilogo.data?.misure.find(
-              (m) => m.codice === misura.codice,
-            )?.percentualeAttuazione;
+            const percentuale = riepilogo.data?.misure.find((m) => m.codice === misura.codice)?.percentualeAttuazione
             return (
               <Accordion key={misura.codice} disableGutters>
                 <AccordionSummary>
@@ -117,9 +95,7 @@ export function SchedaConformita() {
                     </Typography>
                   </Box>
                   {percentuale !== undefined && (
-                    <Typography sx={{ ml: 2, whiteSpace: "nowrap" }}>
-                      {percentuale.toLocaleString("it-IT")}%
-                    </Typography>
+                    <Typography sx={{ ml: 2, whiteSpace: 'nowrap' }}>{percentuale.toLocaleString('it-IT')}%</Typography>
                   )}
                 </AccordionSummary>
                 <AccordionDetails>
@@ -136,18 +112,14 @@ export function SchedaConformita() {
                   </Stack>
                 </AccordionDetails>
               </Accordion>
-            );
+            )
           })}
         </Box>
       )}
 
-      <StoricoAdempimento
-        soggettoId={soggetto.id}
-        requisito={storico}
-        onChiudi={() => setStorico(null)}
-      />
+      <StoricoAdempimento soggettoId={soggetto.id} requisito={storico} onChiudi={() => setStorico(null)} />
     </Stack>
-  );
+  )
 }
 
 function RigaRequisito({
@@ -156,29 +128,24 @@ function RigaRequisito({
   modificabile,
   onStorico,
 }: {
-  soggettoId: number;
-  requisito: Requisito;
-  modificabile: boolean;
-  onStorico: () => void;
+  soggettoId: number
+  requisito: Requisito
+  modificabile: boolean
+  onStorico: () => void
 }) {
-  const valuta = useValuta(soggettoId);
-  const [stato, setStato] = useState<StatoAdempimento | "">(
-    requisito.stato ?? "",
-  );
-  const [note, setNote] = useState(requisito.note ?? "");
-  const modificato =
-    stato !== (requisito.stato ?? "") || note !== (requisito.note ?? "");
+  const valuta = useValuta(soggettoId)
+  const [stato, setStato] = useState<StatoAdempimento | ''>(requisito.stato ?? '')
+  const [note, setNote] = useState(requisito.note ?? '')
+  const modificato = stato !== (requisito.stato ?? '') || note !== (requisito.note ?? '')
 
   return (
     <Paper variant="outlined" sx={{ p: 2 }}>
-      <Box sx={{ display: "flex", gap: 1, alignItems: "center", mb: 1 }}>
+      <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 1 }}>
         <Typography sx={{ fontWeight: 600 }}>{requisito.codice}</Typography>
         <Chip
           size="small"
           color={coloreStato(requisito.stato)}
-          label={
-            requisito.stato ? etichetteStato[requisito.stato] : "Da valutare"
-          }
+          label={requisito.stato ? etichetteStato[requisito.stato] : 'Da valutare'}
         />
         {requisito.dataValutazione && (
           <Typography variant="body2" color="text.secondary">
@@ -196,7 +163,7 @@ function RigaRequisito({
         {requisito.testo}
       </Typography>
       {modificabile ? (
-        <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
+        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
           <TextField
             select
             size="small"
@@ -228,7 +195,7 @@ function RigaRequisito({
                 valuta.mutate({
                   requisitoId: requisito.id,
                   stato,
-                  note: note.trim() === "" ? null : note.trim(),
+                  note: note.trim() === '' ? null : note.trim(),
                 })
               }
             >
@@ -249,7 +216,7 @@ function RigaRequisito({
         </Alert>
       )}
     </Paper>
-  );
+  )
 }
 
 function StoricoAdempimento({
@@ -257,18 +224,13 @@ function StoricoAdempimento({
   requisito,
   onChiudi,
 }: {
-  soggettoId: number;
-  requisito: Requisito | null;
-  onChiudi: () => void;
+  soggettoId: number
+  requisito: Requisito | null
+  onChiudi: () => void
 }) {
-  const versioni = useVersioniAdempimento(soggettoId, requisito?.id ?? null);
+  const versioni = useVersioniAdempimento(soggettoId, requisito?.id ?? null)
   return (
-    <Dialog
-      open={requisito !== null}
-      onClose={onChiudi}
-      fullWidth
-      maxWidth="sm"
-    >
+    <Dialog open={requisito !== null} onClose={onChiudi} fullWidth maxWidth="sm">
       <DialogTitle>Storico di {requisito?.codice}</DialogTitle>
       <DialogContent>
         {!versioni.data ? (
@@ -289,7 +251,7 @@ function StoricoAdempimento({
                   <TableCell>{v.versione}</TableCell>
                   <TableCell>{etichetteStato[v.stato]}</TableCell>
                   <TableCell>{data(v.validoDa)}</TableCell>
-                  <TableCell>{v.modificataDa ?? "prima valutazione"}</TableCell>
+                  <TableCell>{v.modificataDa ?? 'prima valutazione'}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -297,5 +259,5 @@ function StoricoAdempimento({
         )}
       </DialogContent>
     </Dialog>
-  );
+  )
 }

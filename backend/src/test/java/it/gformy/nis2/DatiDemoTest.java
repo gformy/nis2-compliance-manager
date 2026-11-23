@@ -33,4 +33,19 @@ class DatiDemoTest extends OracleTestBase {
         assertThat(asset).isEqualTo(4);
         assertThat(collegamenti).isEqualTo(4);
     }
+
+    @Test
+    void ilProfiloDemoCaricaGliIncidentiDellAziendaAlfa() {
+        Integer incidenti = jdbc.queryForObject("""
+                SELECT COUNT(*) FROM Incidente i JOIN SoggettoNIS s ON s.id = i.soggetto_nis_id
+                WHERE s.codice_fiscale = '01234567890'
+                """, Integer.class);
+        Integer notifiche = jdbc.queryForObject("""
+                SELECT COUNT(*) FROM NotificaIncidente n JOIN Incidente i ON i.id = n.incidente_id
+                WHERE i.titolo = 'Phishing mirato all''ufficio acquisti'
+                """, Integer.class);
+
+        assertThat(incidenti).isEqualTo(2);
+        assertThat(notifiche).isEqualTo(3);
+    }
 }
