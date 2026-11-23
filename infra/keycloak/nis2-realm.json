@@ -1,0 +1,35 @@
+{
+  "realm": "nis2",
+  "displayName": "NIS2 Compliance Manager",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "bruteForceProtected": true,
+  "passwordPolicy": "length(12) and upperCase(1) and lowerCase(1) and digits(1) and notUsername",
+  "roles": {
+    "realm": [
+      {
+        "name": "AMMINISTRATORE",
+        "description": "Gestisce soggetti, utenti, ruoli e cataloghi normativi"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "nis2-frontend",
+      "name": "NIS2 Compliance Manager - Frontend",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": ["http://localhost:5173/*"],
+      "webOrigins": ["http://localhost:5173"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:5173/*"
+      }
+    }
+  ]
+}
