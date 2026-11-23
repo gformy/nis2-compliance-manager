@@ -152,3 +152,20 @@ USING (
 ON (t.fornitore_id = s.fornitore_id AND t.elemento_critico_id = s.elemento_critico_id)
 WHEN NOT MATCHED THEN INSERT (fornitore_id, elemento_critico_id, criterio_rilevanza, tipologia_fornitura, referente_contatto)
 VALUES (s.fornitore_id, s.elemento_critico_id, s.criterio, s.tipologia, s.referente);
+
+-- Valutazioni di conformita' dell'azienda Alfa: un quadro realistico, non tutto verde.
+MERGE INTO StatoAdempimentoRequisito t
+USING (
+    SELECT rm.id AS requisito_id, s.id AS soggetto_nis_id, v.stato, v.note
+    FROM (
+        SELECT 'ID.AM-01.1' AS codice, 'ATTUATO' AS stato, 'Inventario hardware mantenuto in questa applicazione' AS note FROM dual UNION ALL
+        SELECT 'GV.OC-04.1', 'ATTUATO', 'Asset rilevanti contrassegnati nell''inventario' FROM dual UNION ALL
+        SELECT 'GV.SC-04.1', 'PARZIALMENTE_ATTUATO', 'Mancano i referenti di due fornitori minori' FROM dual UNION ALL
+        SELECT 'RS.MA-01.1', 'NON_ATTUATO', 'Piano in bozza, da approvare in CdA' FROM dual
+    ) v
+    JOIN RequisitoMisura rm ON rm.codice = v.codice
+    JOIN SoggettoNIS s ON s.codice_fiscale = '01234567890'
+) s
+ON (t.requisito_id = s.requisito_id AND t.soggetto_nis_id = s.soggetto_nis_id)
+WHEN NOT MATCHED THEN INSERT (requisito_id, soggetto_nis_id, stato, note)
+VALUES (s.requisito_id, s.soggetto_nis_id, s.stato, s.note);
