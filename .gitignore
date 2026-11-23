@@ -1,0 +1,19 @@
+# Java / Maven
+target/
+*.class
+*.log
+
+# Node
+node_modules/
+dist/
+coverage/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# Segreti locali
+.env
+*.local
