@@ -9,6 +9,9 @@ import { configurazioneOidc } from './auth/configurazione'
 import { Layout } from './componenti/Layout'
 import { DettaglioSoggetto, SchedaAnagrafica } from './pagine/DettaglioSoggetto'
 import { ElencoSoggetti } from './pagine/ElencoSoggetti'
+import { CatalogoFornitori } from './pagine/fornitori/CatalogoFornitori'
+import { DettaglioFornitore } from './pagine/fornitori/DettaglioFornitore'
+import { SchedaFornitori } from './pagine/fornitori/SchedaFornitori'
 import { DettaglioAsset } from './pagine/inventario/DettaglioAsset'
 import { DettaglioServizio } from './pagine/inventario/DettaglioServizio'
 import { ElencoAsset } from './pagine/inventario/ElencoAsset'
@@ -28,8 +31,11 @@ const router = createBrowserRouter([
           { path: 'asset/:assetId', element: <DettaglioAsset /> },
           { path: 'servizi', element: <ElencoServizi /> },
           { path: 'servizi/:servizioId', element: <DettaglioServizio /> },
+          { path: 'fornitori', element: <SchedaFornitori /> },
         ],
       },
+      { path: '/fornitori', element: <CatalogoFornitori /> },
+      { path: '/fornitori/:fornitoreId', element: <DettaglioFornitore /> },
     ],
   },
 ])

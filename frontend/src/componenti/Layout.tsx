@@ -20,6 +20,12 @@ export function Layout() {
           >
             NIS2 Compliance Manager
           </Typography>
+          <Button color="inherit" component={RouterLink} to="/">
+            Soggetti
+          </Button>
+          <Button color="inherit" component={RouterLink} to="/fornitori" sx={{ mr: 2 }}>
+            Fornitori
+          </Button>
           {profilo?.amministratore && (
             <Chip label="Amministratore" size="small" color="secondary" sx={{ mr: 2 }} />
           )}

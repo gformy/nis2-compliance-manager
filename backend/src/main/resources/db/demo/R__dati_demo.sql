@@ -107,3 +107,48 @@ BEGIN
     collega('Posta elettronica in cloud', 'Area clienti online');
 END;
 /
+
+-- Fornitori dimostrativi (anagrafica condivisa) e dipendenze dell'azienda Alfa.
+-- Lo stesso fornitore puo' servire piu' elementi con criteri diversi.
+MERGE INTO Fornitore t
+USING (
+    SELECT '09876543210' AS codice_fiscale, 'Cloud Italia S.p.A.' AS denominazione, 'IT' AS paese FROM dual UNION ALL
+    SELECT '01122334455', 'Rete Telecomunicazioni S.r.l.', 'IT' FROM dual UNION ALL
+    SELECT 'DE123456789', 'SCADA Systems GmbH', 'DE' FROM dual
+) s
+ON (t.codice_fiscale = s.codice_fiscale)
+WHEN NOT MATCHED THEN INSERT (denominazione, codice_fiscale, paese_sede_legale)
+VALUES (s.denominazione, s.codice_fiscale, s.paese);
+
+MERGE INTO FornitoreCPV t
+USING (
+    SELECT f.id AS fornitore_id, c.id AS cpv_id
+    FROM Fornitore f
+    JOIN CodiceCPV c ON (f.codice_fiscale, c.codice) IN (
+        ('09876543210', '72000000'), ('09876543210', '72317000'),
+        ('01122334455', '64200000'), ('01122334455', '32400000'),
+        ('DE123456789', '48000000'), ('DE123456789', '50312000'))
+) s
+ON (t.fornitore_id = s.fornitore_id AND t.cpv_id = s.cpv_id)
+WHEN NOT MATCHED THEN INSERT (fornitore_id, cpv_id) VALUES (s.fornitore_id, s.cpv_id);
+
+MERGE INTO Dipendenza t
+USING (
+    SELECT f.id AS fornitore_id, ec.id AS elemento_critico_id, d.criterio, d.tipologia, d.referente
+    FROM (
+        SELECT 'DE123456789' AS cf, 'Server applicativo SCADA' AS elemento, 'ICT' AS criterio,
+               'Licenza e assistenza del software SCADA' AS tipologia, 'support@scada-systems.example' AS referente FROM dual UNION ALL
+        SELECT 'DE123456789', 'Distribuzione energia elettrica - area Nord', 'NON_FUNGIBILE',
+               'Unico fornitore certificato per il sistema di controllo della rete', 'support@scada-systems.example' FROM dual UNION ALL
+        SELECT '01122334455', 'Collegamento MPLS cabine primarie', 'ICT',
+               'Connettivita'' MPLS dedicata', 'noc@rete-tlc.example' FROM dual UNION ALL
+        SELECT '09876543210', 'Posta elettronica in cloud', 'ICT',
+               'Servizio di posta elettronica in SaaS', 'assistenza@cloud-italia.example' FROM dual
+    ) d
+    JOIN Fornitore f ON f.codice_fiscale = d.cf
+    JOIN ElementoCritico ec ON ec.nome = d.elemento
+    JOIN SoggettoNIS s ON s.id = ec.soggetto_nis_id AND s.codice_fiscale = '01234567890'
+) s
+ON (t.fornitore_id = s.fornitore_id AND t.elemento_critico_id = s.elemento_critico_id)
+WHEN NOT MATCHED THEN INSERT (fornitore_id, elemento_critico_id, criterio_rilevanza, tipologia_fornitura, referente_contatto)
+VALUES (s.fornitore_id, s.elemento_critico_id, s.criterio, s.tipologia, s.referente);
