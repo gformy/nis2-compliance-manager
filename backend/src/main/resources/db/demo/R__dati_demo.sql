@@ -169,3 +169,105 @@ USING (
 ON (t.requisito_id = s.requisito_id AND t.soggetto_nis_id = s.soggetto_nis_id)
 WHEN NOT MATCHED THEN INSERT (requisito_id, soggetto_nis_id, stato, note)
 VALUES (s.requisito_id, s.soggetto_nis_id, s.stato, s.note);
+
+-- Incidenti dell'azienda Alfa (orari in UTC, vedi V8):
+--  * uno chiuso a inizio anno, con tutte le trasmissioni al CSIRT nei termini;
+--  * uno aperto da poche ore, con la pre-notifica ancora da fare, cosi' la demo
+--    mostra subito una scadenza in corso.
+DECLARE
+    v_soggetto  NUMBER;
+    v_incidente NUMBER;
+    v_ora       TIMESTAMP := SYS_EXTRACT_UTC(SYSTIMESTAMP);
+
+    FUNCTION tipo(p_codice VARCHAR2) RETURN NUMBER IS
+        v_id NUMBER;
+    BEGIN
+        SELECT id INTO v_id FROM TipoIncidente WHERE codice = p_codice;
+        RETURN v_id;
+    END;
+
+    FUNCTION categoria(p_nome VARCHAR2) RETURN NUMBER IS
+        v_id NUMBER;
+    BEGIN
+        SELECT id INTO v_id FROM CategoriaIncidente WHERE nome = p_nome;
+        RETURN v_id;
+    END;
+
+    FUNCTION esiste(p_titolo VARCHAR2) RETURN BOOLEAN IS
+        v_conta NUMBER;
+    BEGIN
+        SELECT COUNT(*) INTO v_conta FROM Incidente WHERE soggetto_nis_id = v_soggetto AND titolo = p_titolo;
+        RETURN v_conta > 0;
+    END;
+
+    PROCEDURE coinvolgi(p_nome VARCHAR2) IS
+    BEGIN
+        INSERT INTO IncidenteElementoCritico (incidente_id, elemento_critico_id)
+        SELECT v_incidente, id FROM ElementoCritico WHERE soggetto_nis_id = v_soggetto AND nome = p_nome;
+    END;
+BEGIN
+    SELECT id INTO v_soggetto FROM SoggettoNIS WHERE codice_fiscale = '01234567890';
+
+    IF NOT esiste('Phishing mirato all''ufficio acquisti') THEN
+        DECLARE
+            v_tipo NUMBER := tipo('IS-4');
+            v_cat  NUMBER := categoria('PHISHING');
+        BEGIN
+            INSERT INTO Incidente (tipo_incidente_id, soggetto_nis_id, categoria_id, data_evidenza, gravita,
+                                   root_cause, titolo, descrizione, stato, data_chiusura, registrato_da)
+            VALUES (v_tipo, v_soggetto, v_cat, TIMESTAMP '2026-02-03 07:40:00', 'MEDIA',
+                    'Credenziali raccolte con una falsa pagina di accesso alla posta',
+                    'Phishing mirato all''ufficio acquisti',
+                    'Accesso alla casella di un addetto con credenziali sottratte; inoltri verso un indirizzo esterno.',
+                    'CHIUSO', TIMESTAMP '2026-02-20 16:00:00', 'operatore.demo')
+            RETURNING id INTO v_incidente;
+        END;
+        coinvolgi('Posta elettronica in cloud');
+
+        INSERT INTO NotificaIncidente (incidente_id, tipo, data_trasmissione, contenuto, registrata_da)
+        SELECT v_incidente, tipo, data_trasmissione, contenuto, 'operatore.demo' FROM (
+            SELECT 'PRE_NOTIFICA' AS tipo, TIMESTAMP '2026-02-03 15:10:00' AS data_trasmissione,
+                   'Accesso abusivo a una casella di posta, in corso di analisi' AS contenuto FROM dual UNION ALL
+            SELECT 'NOTIFICA', TIMESTAMP '2026-02-05 11:30:00',
+                   'Credenziali sottratte via phishing; reset password e MFA obbligatoria' FROM dual UNION ALL
+            SELECT 'RELAZIONE_FINALE', TIMESTAMP '2026-02-27 09:00:00',
+                   'Causa, impatto e misure adottate; nessun dato esfiltrato oltre la casella' FROM dual);
+
+        INSERT INTO IndicatoreCompromissione (incidente_id, tipo, valore, data_rilevazione)
+        SELECT v_incidente, tipo, valore, TIMESTAMP '2026-02-03 09:00:00' FROM (
+            SELECT 'DOMINIO' AS tipo, 'login-posta-alfa.example' AS valore FROM dual UNION ALL
+            SELECT 'IP', '198.51.100.23' FROM dual);
+
+        INSERT INTO TimelineEvento (incidente_id, data_ora, fase, descrizione)
+        SELECT v_incidente, data_ora, fase, descrizione FROM (
+            SELECT TIMESTAMP '2026-02-03 07:40:00' AS data_ora, 'RILEVAMENTO' AS fase,
+                   'Segnalazione dell''addetto: email inviate a sua insaputa' AS descrizione FROM dual UNION ALL
+            SELECT TIMESTAMP '2026-02-03 08:30:00', 'CONTENIMENTO', 'Sessioni revocate e password reimpostata' FROM dual UNION ALL
+            SELECT TIMESTAMP '2026-02-04 14:00:00', 'INVESTIGAZIONE', 'Analisi dei log di accesso: un solo account coinvolto' FROM dual UNION ALL
+            SELECT TIMESTAMP '2026-02-10 10:00:00', 'RIPRISTINO', 'MFA attivata per tutto l''ufficio acquisti' FROM dual);
+
+        INSERT INTO AttivitaRisposta (incidente_id, fase, descrizione, motivazione, esito, data_esecuzione)
+        VALUES (v_incidente, 'CONTENIMENTO', 'Blocco del dominio malevolo sul proxy',
+                'Impedire nuovi accessi alla pagina contraffatta', 'Completato', TIMESTAMP '2026-02-03 09:15:00');
+    END IF;
+
+    IF NOT esiste('Interruzione del sistema SCADA di telecontrollo') THEN
+        DECLARE
+            v_tipo NUMBER := tipo('IS-3');
+            v_cat  NUMBER := categoria('MALWARE');
+        BEGIN
+            INSERT INTO Incidente (tipo_incidente_id, soggetto_nis_id, categoria_id, data_evidenza, gravita,
+                                   titolo, descrizione, registrato_da)
+            VALUES (v_tipo, v_soggetto, v_cat, v_ora - INTERVAL '6' HOUR, 'ALTA',
+                    'Interruzione del sistema SCADA di telecontrollo',
+                    'Il telecontrollo delle cabine non risponde; sospetto malware sulla workstation di supervisione.',
+                    'operatore.demo')
+            RETURNING id INTO v_incidente;
+        END;
+        coinvolgi('Server applicativo SCADA');
+        coinvolgi('Sistema di telecontrollo della rete');
+        INSERT INTO TimelineEvento (incidente_id, data_ora, fase, descrizione)
+        VALUES (v_incidente, v_ora - INTERVAL '6' HOUR, 'RILEVAMENTO', 'Allarme del centro di controllo: cabine non raggiungibili');
+    END IF;
+END;
+/
