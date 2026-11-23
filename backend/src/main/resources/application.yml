@@ -19,6 +19,14 @@ spring:
     placeholders:
       app_user: ${DB_APP_USER:nis2_app}
 
+  # Il backend accetta solo token firmati dal realm nis2 di Keycloak.
+  # Le chiavi pubbliche si scaricano dall'issuer alla prima richiesta.
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER:http://localhost:8180/realms/nis2}
+
 management:
   endpoints:
     web:

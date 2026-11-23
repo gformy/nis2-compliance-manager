@@ -24,12 +24,52 @@
       "standardFlowEnabled": true,
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": false,
-      "redirectUris": ["http://localhost:5173/*"],
-      "webOrigins": ["http://localhost:5173"],
+      "redirectUris": [
+        "http://localhost:5173/*"
+      ],
+      "webOrigins": [
+        "http://localhost:5173"
+      ],
       "attributes": {
         "pkce.code.challenge.method": "S256",
         "post.logout.redirect.uris": "http://localhost:5173/*"
       }
+    }
+  ],
+  "users": [
+    {
+      "username": "admin.demo",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Anna",
+      "lastName": "Neri",
+      "email": "admin.demo@esempio.it",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-Nis2-2026",
+          "temporary": true
+        }
+      ],
+      "realmRoles": [
+        "AMMINISTRATORE"
+      ]
+    },
+    {
+      "username": "operatore.demo",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Luca",
+      "lastName": "Verdi",
+      "email": "operatore.demo@esempio.it",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-Nis2-2026",
+          "temporary": true
+        }
+      ],
+      "realmRoles": []
     }
   ]
 }
