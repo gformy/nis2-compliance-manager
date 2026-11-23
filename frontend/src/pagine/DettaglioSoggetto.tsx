@@ -14,6 +14,7 @@ const schede = [
   { percorso: 'asset', etichetta: 'Asset' },
   { percorso: 'servizi', etichetta: 'Servizi' },
   { percorso: 'fornitori', etichetta: 'Fornitori' },
+  { percorso: 'conformita', etichetta: 'Conformità' },
 ]
 
 /** Intestazione del soggetto con le schede; il contenuto della scheda arriva dalle rotte figlie. */
@@ -49,7 +50,7 @@ export function DettaglioSoggetto() {
             <Typography color="text.secondary">Codice fiscale {soggetto.codiceFiscale}</Typography>
           </div>
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-            <Tabs value={schedaAttiva}>
+            <Tabs value={schedaAttiva} variant="scrollable" allowScrollButtonsMobile>
               {schede.map(({ percorso, etichetta }) => (
                 <Tab
                   key={etichetta}

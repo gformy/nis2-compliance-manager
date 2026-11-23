@@ -73,6 +73,7 @@ Lo schema è quello del PW 19, applicato da Flyway:
 | `V4__audit_utente_applicativo` | I trigger di storico registrano la persona collegata al backend e non l'utente tecnico |
 | `V5__utente_soggetto` | Assegnazione di utenti e ruoli ai soggetti: la base dell'isolamento |
 | `V6__codici_cpv` | Catalogo dei codici CPV per i fornitori rilevanti |
+| `V7__misure_sicurezza` | Misure di sicurezza e requisiti ACN delle specifiche di base (estratto del PW) |
 | `R__permessi_utente_applicativo` | Permessi minimi dell'utente con cui si collega il backend |
 
 Il backend usa due utenti Oracle: `nis2_owner` possiede lo schema e lo usa solo Flyway; `nis2_app` legge e scrive i dati, senza poter cambiare la struttura né cancellare asset e servizi.
