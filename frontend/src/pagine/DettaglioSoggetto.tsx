@@ -13,6 +13,7 @@ const schede = [
   { percorso: '', etichetta: 'Anagrafica' },
   { percorso: 'asset', etichetta: 'Asset' },
   { percorso: 'servizi', etichetta: 'Servizi' },
+  { percorso: 'fornitori', etichetta: 'Fornitori' },
 ]
 
 /** Intestazione del soggetto con le schede; il contenuto della scheda arriva dalle rotte figlie. */

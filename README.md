@@ -45,7 +45,7 @@ Apri http://localhost:5173 e accedi con un utente dimostrativo. Al primo accesso
 | `operatore.demo` | `Demo-Nis2-2026` | Operatore sull'azienda Alfa |
 | `revisore.demo` | `Demo-Nis2-2026` | Revisore (sola lettura) sull'azienda Alfa |
 
-Il profilo demo carica anche l'inventario dell'azienda Alfa: quattro asset, due servizi e i loro collegamenti.
+Il profilo demo carica anche l'inventario dell'azienda Alfa (quattro asset, due servizi e i loro collegamenti) e tre fornitori con le relative dipendenze.
 
 Ogni utente vede solo i soggetti a cui è assegnato: `operatore.demo` e `revisore.demo` vedono l'azienda Alfa ma non il Comune di Esempio. L'amministratore vede tutto e assegna gli accessi dalla pagina del soggetto.
 
@@ -72,6 +72,7 @@ Lo schema è quello del PW 19, applicato da Flyway:
 | `V3__data_creazione` | Data di creazione sulle tabelle storicizzate, così le ricostruzioni AS OF non mostrano righe nate dopo l'invio |
 | `V4__audit_utente_applicativo` | I trigger di storico registrano la persona collegata al backend e non l'utente tecnico |
 | `V5__utente_soggetto` | Assegnazione di utenti e ruoli ai soggetti: la base dell'isolamento |
+| `V6__codici_cpv` | Catalogo dei codici CPV per i fornitori rilevanti |
 | `R__permessi_utente_applicativo` | Permessi minimi dell'utente con cui si collega il backend |
 
 Il backend usa due utenti Oracle: `nis2_owner` possiede lo schema e lo usa solo Flyway; `nis2_app` legge e scrive i dati, senza poter cambiare la struttura né cancellare asset e servizi.
