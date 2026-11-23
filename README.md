@@ -15,6 +15,51 @@ Il database nasce dal Project Work 19 del corso di laurea in Informatica per le 
 | Identità | Keycloak (OpenID Connect) |
 | CI | GitHub Actions |
 
+## Avvio in locale
+
+Servono Docker, Java 25 e Node.js 22. Maven non serve: lo scarica `./mvnw` (Maven Wrapper).
+
+```bash
+# 1. Database e Keycloak
+cd infra
+cp .env.example .env        # poi cambia le password
+docker compose up -d
+
+# 2. Backend: applica le migrazioni Flyway e avvia le API su :8080
+cd ../backend
+set -a; source ../infra/.env; set +a
+./mvnw spring-boot:run
+
+# 3. Frontend su :5173
+cd ../frontend
+npm install
+npm run dev
+```
+
+I test del backend (`./mvnw verify`) avviano da soli un Oracle Database Free in container con Testcontainers.
+
+## Struttura
+
+| Cartella | Contenuto |
+| --- | --- |
+| `backend/` | API Spring Boot; migrazioni Flyway in `src/main/resources/db/migration` |
+| `frontend/` | Applicazione React |
+| `infra/` | Docker Compose, script di inizializzazione Oracle, realm Keycloak |
+
+## Database
+
+Lo schema è quello del PW 19, applicato da Flyway:
+
+| Migrazione | Cosa fa |
+| --- | --- |
+| `V1__schema_pw19` | Tabelle, viste e trigger del PW, invariati; aggiunta solo la riga `/` dopo i blocchi PL/SQL |
+| `V2__dati_normativi` | Dati di lookup del PW (`popolamento_dati.sql`) |
+| `V3__data_creazione` | Data di creazione sulle tabelle storicizzate, così le ricostruzioni AS OF non mostrano righe nate dopo l'invio |
+| `V4__audit_utente_applicativo` | I trigger di storico registrano la persona collegata al backend e non l'utente tecnico |
+| `R__permessi_utente_applicativo` | Permessi minimi dell'utente con cui si collega il backend |
+
+Il backend usa due utenti Oracle: `nis2_owner` possiede lo schema e lo usa solo Flyway; `nis2_app` legge e scrive i dati, senza poter cambiare la struttura né cancellare asset e servizi.
+
 ## Stato
 
 In sviluppo. La roadmap è divisa in tappe; ogni tappa arriva con una pull request.
