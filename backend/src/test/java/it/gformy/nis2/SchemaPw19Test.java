@@ -66,8 +66,9 @@ class SchemaPw19Test extends OracleTestBase {
         long asset = nuovoAsset(nuovoSoggetto(), "Server di test");
 
         // L'utente applicativo non ha proprio il permesso di DELETE
+        // (ORA-41900 da Oracle 23ai, ORA-01031 nelle versioni precedenti)
         assertThatThrownBy(() -> jdbc.update("DELETE FROM ElementoCritico WHERE id = ?", asset))
-                .hasMessageContaining("ORA-01031");
+                .hasMessageMatching("(?s).*ORA-(41900|01031).*");
 
         // Anche il proprietario viene fermato dal trigger del PW
         assertThatThrownBy(() -> jdbcProprietario().update("DELETE FROM ElementoCritico WHERE id = ?", asset))
