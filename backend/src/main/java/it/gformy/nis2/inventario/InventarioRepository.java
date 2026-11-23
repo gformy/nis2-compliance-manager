@@ -67,6 +67,14 @@ public class InventarioRepository {
                 .optional();
     }
 
+    /** Stato di un elemento del soggetto, asset o servizio che sia. */
+    public Optional<StatoElemento> statoElemento(long soggettoId, long id) {
+        return jdbc.sql("SELECT stato FROM ElementoCritico WHERE id = ? AND soggetto_nis_id = ?")
+                .params(id, soggettoId)
+                .query((rs, n) -> StatoElemento.valueOf(rs.getString("stato")))
+                .optional();
+    }
+
     public void rinomina(long id, String nome) {
         jdbc.sql("UPDATE ElementoCritico SET nome = ? WHERE id = ?").params(nome, id).update();
     }
