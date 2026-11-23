@@ -18,7 +18,8 @@ class SchemaPw19Test extends OracleTestBase {
                 WHERE owner = UPPER(?) AND LOWER(table_name) <> 'flyway_schema_history'
                 """, Integer.class, PROPRIETARIO);
 
-        assertThat(tabelle).isEqualTo(47);
+        // 47 tabelle del PW + UtenteSoggetto (V5)
+        assertThat(tabelle).isEqualTo(48);
     }
 
     @Test

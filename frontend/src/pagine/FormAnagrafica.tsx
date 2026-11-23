@@ -16,7 +16,7 @@ const campiTesto: { nome: keyof ValoriAnagrafica; etichetta: string; larghezza: 
   { nome: 'bilancio', etichetta: 'Bilancio (€)', larghezza: 6 },
 ]
 
-export function FormAnagrafica({ soggetto }: { soggetto: Soggetto }) {
+export function FormAnagrafica({ soggetto, solaLettura }: { soggetto: Soggetto; solaLettura: boolean }) {
   const aggiorna = useAggiornaSoggetto(soggetto.id)
   const {
     register,
@@ -56,6 +56,7 @@ export function FormAnagrafica({ soggetto }: { soggetto: Soggetto }) {
               <TextField
                 label={etichetta}
                 fullWidth
+                slotProps={{ input: { readOnly: solaLettura } }}
                 {...register(nome)}
                 error={Boolean(errors[nome])}
                 helperText={errors[nome]?.message}
@@ -68,7 +69,13 @@ export function FormAnagrafica({ soggetto }: { soggetto: Soggetto }) {
               name="tipoSoggetto"
               control={control}
               render={({ field }) => (
-                <TextField select label="Tipo di soggetto" fullWidth {...field}>
+                <TextField
+                  select
+                  label="Tipo di soggetto"
+                  fullWidth
+                  slotProps={{ input: { readOnly: solaLettura } }}
+                  {...field}
+                >
                   <MenuItem value="ESSENZIALE">Essenziale</MenuItem>
                   <MenuItem value="IMPORTANTE">Importante</MenuItem>
                 </TextField>
@@ -88,14 +95,20 @@ export function FormAnagrafica({ soggetto }: { soggetto: Soggetto }) {
           </Alert>
         )}
 
-        <Box sx={{ display: 'flex', gap: 1, mt: 3 }}>
-          <Button type="submit" variant="contained" disabled={!isDirty || isSubmitting}>
-            Salva
-          </Button>
-          <Button disabled={!isDirty || isSubmitting} onClick={() => reset()}>
-            Annulla
-          </Button>
-        </Box>
+        {solaLettura ? (
+          <Alert severity="info" sx={{ mt: 2 }}>
+            Hai accesso in sola lettura a questo soggetto.
+          </Alert>
+        ) : (
+          <Box sx={{ display: 'flex', gap: 1, mt: 3 }}>
+            <Button type="submit" variant="contained" disabled={!isDirty || isSubmitting}>
+              Salva
+            </Button>
+            <Button disabled={!isDirty || isSubmitting} onClick={() => reset()}>
+              Annulla
+            </Button>
+          </Box>
+        )}
       </Box>
     </Paper>
   )

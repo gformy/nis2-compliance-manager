@@ -27,3 +27,17 @@ VALUES
     ('80012345678', 'Comune di Esempio', 'Piazza del Municipio 1, Esempio', 'protocollo@pec.comune.esempio.it',
      NULL, '061234567', NULL, NULL, 480,
      (SELECT id FROM TipoSoggettoNIS WHERE codice = 'IMPORTANTE'));
+
+-- Assegnazioni dimostrative: operatore.demo e revisore.demo lavorano solo sull'azienda Alfa.
+-- Il Comune di Esempio lo vede solo l'amministratore: e' la prova dell'isolamento.
+MERGE INTO UtenteSoggetto t
+USING (SELECT 'operatore.demo' AS utente, id AS soggetto_nis_id FROM SoggettoNIS WHERE codice_fiscale = '01234567890') s
+ON (t.utente = s.utente AND t.soggetto_nis_id = s.soggetto_nis_id)
+WHEN NOT MATCHED THEN INSERT (utente, soggetto_nis_id, ruolo, assegnato_da)
+VALUES (s.utente, s.soggetto_nis_id, 'OPERATORE', 'dati-demo');
+
+MERGE INTO UtenteSoggetto t
+USING (SELECT 'revisore.demo' AS utente, id AS soggetto_nis_id FROM SoggettoNIS WHERE codice_fiscale = '01234567890') s
+ON (t.utente = s.utente AND t.soggetto_nis_id = s.soggetto_nis_id)
+WHEN NOT MATCHED THEN INSERT (utente, soggetto_nis_id, ruolo, assegnato_da)
+VALUES (s.utente, s.soggetto_nis_id, 'REVISORE', 'dati-demo');

@@ -38,6 +38,9 @@ export function useApi() {
         const problema = (await risposta.json().catch(() => undefined)) as Problema | undefined
         throw new ErroreApi(risposta.status, problema)
       }
+      if (risposta.status === 204) {
+        return undefined as T
+      }
       return (await risposta.json()) as T
     },
     [token],

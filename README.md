@@ -41,8 +41,11 @@ Apri http://localhost:5173 e accedi con un utente dimostrativo. Al primo accesso
 
 | Utente | Password iniziale | Ruolo |
 | --- | --- | --- |
-| `admin.demo` | `Demo-Nis2-2026` | Amministratore |
-| `operatore.demo` | `Demo-Nis2-2026` | Operatore |
+| `admin.demo` | `Demo-Nis2-2026` | Amministratore della piattaforma |
+| `operatore.demo` | `Demo-Nis2-2026` | Operatore sull'azienda Alfa |
+| `revisore.demo` | `Demo-Nis2-2026` | Revisore (sola lettura) sull'azienda Alfa |
+
+Ogni utente vede solo i soggetti a cui è assegnato: `operatore.demo` e `revisore.demo` vedono l'azienda Alfa ma non il Comune di Esempio. L'amministratore vede tutto e assegna gli accessi dalla pagina del soggetto.
 
 Gli utenti si trovano in `infra/keycloak/nis2-realm.json` e servono solo in locale.
 
@@ -66,6 +69,7 @@ Lo schema è quello del PW 19, applicato da Flyway:
 | `V2__dati_normativi` | Dati di lookup del PW (`popolamento_dati.sql`) |
 | `V3__data_creazione` | Data di creazione sulle tabelle storicizzate, così le ricostruzioni AS OF non mostrano righe nate dopo l'invio |
 | `V4__audit_utente_applicativo` | I trigger di storico registrano la persona collegata al backend e non l'utente tecnico |
+| `V5__utente_soggetto` | Assegnazione di utenti e ruoli ai soggetti: la base dell'isolamento |
 | `R__permessi_utente_applicativo` | Permessi minimi dell'utente con cui si collega il backend |
 
 Il backend usa due utenti Oracle: `nis2_owner` possiede lo schema e lo usa solo Flyway; `nis2_app` legge e scrive i dati, senza poter cambiare la struttura né cancellare asset e servizi.

@@ -1,10 +1,12 @@
-import { AppBar, Box, Button, Container, Toolbar, Typography } from '@mui/material'
+import { AppBar, Box, Button, Chip, Container, Toolbar, Typography } from '@mui/material'
 import { useAuth } from 'react-oidc-context'
 import { Link as RouterLink, Outlet } from 'react-router'
+import { useProfilo } from '../api/profilo'
 
 export function Layout() {
   const auth = useAuth()
   const utente = auth.user?.profile.preferred_username ?? auth.user?.profile.name
+  const { data: profilo } = useProfilo()
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'grey.50' }}>
@@ -18,6 +20,9 @@ export function Layout() {
           >
             NIS2 Compliance Manager
           </Typography>
+          {profilo?.amministratore && (
+            <Chip label="Amministratore" size="small" color="secondary" sx={{ mr: 2 }} />
+          )}
           {utente && (
             <Typography variant="body2" sx={{ mr: 2 }}>
               {utente}

@@ -1,0 +1,38 @@
+package it.gformy.nis2.accesso;
+
+import java.util.List;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * Chi sono e cosa posso fare: il frontend lo usa per mostrare o nascondere
+ * i comandi. E' solo una comodita' per l'interfaccia: i permessi veri li
+ * controlla sempre il backend a ogni richiesta.
+ */
+@RestController
+public class ProfiloController {
+
+    public record SoggettoAssegnato(long soggettoId, RuoloSoggetto ruolo) {
+    }
+
+    public record Profilo(String utente, boolean amministratore, List<SoggettoAssegnato> soggetti) {
+    }
+
+    private final AccessoSoggetti accesso;
+    private final AssegnazioneRepository assegnazioni;
+
+    public ProfiloController(AccessoSoggetti accesso, AssegnazioneRepository assegnazioni) {
+        this.accesso = accesso;
+        this.assegnazioni = assegnazioni;
+    }
+
+    @GetMapping("/api/v1/me")
+    public Profilo profilo() {
+        String utente = accesso.utente();
+        List<SoggettoAssegnato> soggetti = assegnazioni.perUtente(utente).stream()
+                .map(a -> new SoggettoAssegnato(a.soggettoId(), a.ruolo()))
+                .toList();
+        return new Profilo(utente, accesso.amministratore(), soggetti);
+    }
+}

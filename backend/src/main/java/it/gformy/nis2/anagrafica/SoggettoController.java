@@ -3,8 +3,6 @@ package it.gformy.nis2.anagrafica;
 import java.net.URI;
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.ErrorResponseException;
@@ -21,14 +19,16 @@ import it.gformy.nis2.anagrafica.ModelloSoggetto.NuovoSoggetto;
 import it.gformy.nis2.anagrafica.ModelloSoggetto.Soggetto;
 import it.gformy.nis2.anagrafica.ModelloSoggetto.SoggettoSintesi;
 import it.gformy.nis2.anagrafica.ModelloSoggetto.VersioneSoggetto;
+import it.gformy.nis2.accesso.AccessoSoggetti;
 import it.gformy.nis2.audit.TransazioneAuditata;
+import it.gformy.nis2.comune.Errori;
 import jakarta.validation.Valid;
 
 /**
  * API dell'anagrafica del soggetto NIS.
  *
- * Nella tappa 2 ogni utente autenticato vede tutti i soggetti; dalla tappa 3
- * l'accesso sara' limitato ai soggetti assegnati all'utente (tabella UtenteSoggetto).
+ * Ogni utente vede solo i soggetti a cui e' assegnato (tabella UtenteSoggetto);
+ * l'amministratore li vede tutti. I controlli sono in {@link AccessoSoggetti}.
  */
 @RestController
 @RequestMapping("/api/v1/soggetti")
@@ -36,18 +36,22 @@ public class SoggettoController {
 
     private final SoggettoRepository repository;
     private final TransazioneAuditata transazioneAuditata;
+    private final AccessoSoggetti accesso;
 
-    public SoggettoController(SoggettoRepository repository, TransazioneAuditata transazioneAuditata) {
+    public SoggettoController(SoggettoRepository repository, TransazioneAuditata transazioneAuditata,
+                              AccessoSoggetti accesso) {
         this.repository = repository;
         this.transazioneAuditata = transazioneAuditata;
+        this.accesso = accesso;
     }
 
     @GetMapping
     public List<SoggettoSintesi> elenco() {
-        return repository.elenco();
+        return accesso.amministratore() ? repository.elenco() : repository.elencoPerUtente(accesso.utente());
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("@accessoSoggetti.puoLeggere(#id)")
     public Soggetto dettaglio(@PathVariable long id) {
         return repository.trova(id).orElseThrow(() -> nonTrovato(id));
     }
@@ -61,6 +65,7 @@ public class SoggettoController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("@accessoSoggetti.puoModificare(#id)")
     public Soggetto aggiorna(@PathVariable long id, @Valid @RequestBody DatiSoggetto dati) {
         boolean aggiornato = transazioneAuditata.esegui(() -> repository.aggiorna(id, dati));
         if (!aggiornato) {
@@ -70,6 +75,7 @@ public class SoggettoController {
     }
 
     @GetMapping("/{id}/versioni")
+    @PreAuthorize("@accessoSoggetti.puoLeggere(#id)")
     public List<VersioneSoggetto> versioni(@PathVariable long id) {
         List<VersioneSoggetto> versioni = repository.versioni(id);
         if (versioni.isEmpty()) {
@@ -79,7 +85,6 @@ public class SoggettoController {
     }
 
     private static ErrorResponseException nonTrovato(long id) {
-        return new ErrorResponseException(HttpStatus.NOT_FOUND,
-                ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, "Soggetto " + id + " non trovato"), null);
+        return Errori.nonTrovato("Soggetto " + id);
     }
 }
