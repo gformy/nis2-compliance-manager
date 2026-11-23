@@ -1,0 +1,4 @@
+# Profilo "demo": oltre alle migrazioni dello schema carica i dati dimostrativi.
+spring:
+  flyway:
+    locations: classpath:db/migration,classpath:db/demo
