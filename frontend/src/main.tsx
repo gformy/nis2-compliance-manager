@@ -7,15 +7,29 @@ import { RouterProvider, createBrowserRouter } from 'react-router'
 import { RichiedeLogin } from './auth/RichiedeLogin'
 import { configurazioneOidc } from './auth/configurazione'
 import { Layout } from './componenti/Layout'
-import { DettaglioSoggetto } from './pagine/DettaglioSoggetto'
+import { DettaglioSoggetto, SchedaAnagrafica } from './pagine/DettaglioSoggetto'
 import { ElencoSoggetti } from './pagine/ElencoSoggetti'
+import { DettaglioAsset } from './pagine/inventario/DettaglioAsset'
+import { DettaglioServizio } from './pagine/inventario/DettaglioServizio'
+import { ElencoAsset } from './pagine/inventario/ElencoAsset'
+import { ElencoServizi } from './pagine/inventario/ElencoServizi'
 
 const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
       { path: '/', element: <ElencoSoggetti /> },
-      { path: '/soggetti/:id', element: <DettaglioSoggetto /> },
+      {
+        path: '/soggetti/:id',
+        element: <DettaglioSoggetto />,
+        children: [
+          { index: true, element: <SchedaAnagrafica /> },
+          { path: 'asset', element: <ElencoAsset /> },
+          { path: 'asset/:assetId', element: <DettaglioAsset /> },
+          { path: 'servizi', element: <ElencoServizi /> },
+          { path: 'servizi/:servizioId', element: <DettaglioServizio /> },
+        ],
+      },
     ],
   },
 ])

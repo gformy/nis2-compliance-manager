@@ -45,6 +45,8 @@ Apri http://localhost:5173 e accedi con un utente dimostrativo. Al primo accesso
 | `operatore.demo` | `Demo-Nis2-2026` | Operatore sull'azienda Alfa |
 | `revisore.demo` | `Demo-Nis2-2026` | Revisore (sola lettura) sull'azienda Alfa |
 
+Il profilo demo carica anche l'inventario dell'azienda Alfa: quattro asset, due servizi e i loro collegamenti.
+
 Ogni utente vede solo i soggetti a cui è assegnato: `operatore.demo` e `revisore.demo` vedono l'azienda Alfa ma non il Comune di Esempio. L'amministratore vede tutto e assegna gli accessi dalla pagina del soggetto.
 
 Gli utenti si trovano in `infra/keycloak/nis2-realm.json` e servono solo in locale.
