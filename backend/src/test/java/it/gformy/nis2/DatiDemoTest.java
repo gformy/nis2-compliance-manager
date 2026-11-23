@@ -17,4 +17,20 @@ class DatiDemoTest extends OracleTestBase {
 
         assertThat(soggetti).isEqualTo(2);
     }
+
+    @Test
+    void ilProfiloDemoCaricaLInventarioDellAziendaAlfa() {
+        Integer asset = jdbc.queryForObject("""
+                SELECT COUNT(*) FROM AssetCompleto a JOIN SoggettoNIS s ON s.id = a.soggetto_nis_id
+                WHERE s.codice_fiscale = '01234567890'
+                """, Integer.class);
+        Integer collegamenti = jdbc.queryForObject("""
+                SELECT COUNT(*) FROM AssetServizio r JOIN ElementoCritico ec ON ec.id = r.asset_id
+                JOIN SoggettoNIS s ON s.id = ec.soggetto_nis_id
+                WHERE s.codice_fiscale = '01234567890'
+                """, Integer.class);
+
+        assertThat(asset).isEqualTo(4);
+        assertThat(collegamenti).isEqualTo(4);
+    }
 }

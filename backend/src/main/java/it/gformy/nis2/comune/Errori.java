@@ -10,6 +10,11 @@ public final class Errori {
     private Errori() {
     }
 
+    public static ErrorResponseException conflitto(String dettaglio) {
+        return new ErrorResponseException(HttpStatus.CONFLICT,
+                ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, dettaglio), null);
+    }
+
     public static ErrorResponseException nonTrovato(String descrizione) {
         return new ErrorResponseException(HttpStatus.NOT_FOUND,
                 ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, descrizione + " non trovato"), null);
