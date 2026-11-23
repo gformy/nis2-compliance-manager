@@ -48,6 +48,29 @@ public class SoggettoRepository {
                 .list();
     }
 
+    /** Solo i soggetti a cui l'utente e' assegnato: il filtro e' nella query, non nel codice Java. */
+    public List<SoggettoSintesi> elencoPerUtente(String utente) {
+        return jdbc.sql("""
+                SELECT s.id, s.codice_fiscale, s.denominazione, t.codice AS tipo_soggetto
+                FROM SoggettoNIS s
+                JOIN TipoSoggettoNIS t ON t.id = s.tipo_soggetto_id
+                JOIN UtenteSoggetto us ON us.soggetto_nis_id = s.id
+                WHERE us.utente = ?
+                ORDER BY s.denominazione
+                """)
+                .param(utente)
+                .query((rs, n) -> new SoggettoSintesi(
+                        rs.getLong("id"),
+                        rs.getString("codice_fiscale"),
+                        rs.getString("denominazione"),
+                        TipoSoggetto.valueOf(rs.getString("tipo_soggetto"))))
+                .list();
+    }
+
+    public boolean esiste(long id) {
+        return jdbc.sql("SELECT COUNT(*) FROM SoggettoNIS WHERE id = ?").param(id).query(Integer.class).single() > 0;
+    }
+
     public Optional<Soggetto> trova(long id) {
         return jdbc.sql("""
                 SELECT s.id, s.codice_fiscale, s.denominazione, s.indirizzo_sede_legale, s.pec,

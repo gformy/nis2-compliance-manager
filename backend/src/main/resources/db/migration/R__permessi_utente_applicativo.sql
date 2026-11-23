@@ -7,6 +7,8 @@
 -- basta leggerle. I cataloghi normativi sono in sola lettura.
 -- ElementoCritico, Asset e Servizio non ricevono DELETE: oltre ai trigger
 -- di blocco del PW, il permesso proprio non esiste.
+-- UtenteSoggetto (V5) rientra nelle tabelle con lettura e scrittura: le
+-- assegnazioni le modifica solo l'amministratore, controllo fatto dal backend.
 --
 -- Migrazione ripetibile: Flyway la riesegue quando il file cambia.
 -- =====================================================================

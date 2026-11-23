@@ -80,6 +80,18 @@ public abstract class OracleTestBase {
                 "SELECT id FROM SoggettoNIS WHERE codice_fiscale = ?", Long.class, codiceFiscale);
     }
 
+    /** Assegna un utente a un soggetto con un ruolo (REFERENTE_NIS, OPERATORE, REVISORE). */
+    protected void assegna(String utente, long soggettoId, String ruolo) {
+        jdbc.update("""
+                INSERT INTO UtenteSoggetto (utente, soggetto_nis_id, ruolo, assegnato_da)
+                VALUES (?, ?, ?, 'test')
+                """, utente, soggettoId, ruolo);
+    }
+
+    protected String denominazione(long soggettoId) {
+        return jdbc.queryForObject("SELECT denominazione FROM SoggettoNIS WHERE id = ?", String.class, soggettoId);
+    }
+
     /** Inserisce un asset dalla vista ISA, come prevede il PW. */
     protected long nuovoAsset(long soggettoId, String nome) {
         jdbc.update("""

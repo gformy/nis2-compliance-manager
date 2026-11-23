@@ -70,6 +70,22 @@
         }
       ],
       "realmRoles": []
+    },
+    {
+      "username": "revisore.demo",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Marta",
+      "lastName": "Gialli",
+      "email": "revisore.demo@esempio.it",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-Nis2-2026",
+          "temporary": true
+        }
+      ],
+      "realmRoles": []
     }
   ]
 }
