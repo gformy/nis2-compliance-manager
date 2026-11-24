@@ -25,7 +25,8 @@ public final class ModelloSoggetto {
     public enum TipoSoggetto { ESSENZIALE, IMPORTANTE }
 
     /** Riga dell'elenco. */
-    public record SoggettoSintesi(long id, String codiceFiscale, String denominazione, TipoSoggetto tipoSoggetto) {
+    public record SoggettoSintesi(long id, String codiceFiscale, String denominazione, TipoSoggetto tipoSoggetto,
+                                  long organizzazioneId, String organizzazione) {
     }
 
     /** Anagrafica completa, come la restituisce l'API. */
@@ -67,7 +68,9 @@ public final class ModelloSoggetto {
             @Pattern(regexp = "[0-9]{11}|[A-Z0-9]{16}",
                      message = "deve essere una partita IVA di 11 cifre o un codice fiscale di 16 caratteri")
             String codiceFiscale,
-            @NotNull @Valid DatiSoggetto dati) {
+            @NotNull @Valid DatiSoggetto dati,
+            /** Solo per l'amministratore della piattaforma; gli altri creano nella propria organizzazione. */
+            Long organizzazioneId) {
     }
 
     /** Una versione dell'anagrafica, dalla vista SoggettoNIS_Versioni del PW. */

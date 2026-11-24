@@ -86,4 +86,15 @@ class DatiDemoTest extends OracleTestBase {
 
         assertThat(righe).isEqualTo(8);
     }
+
+    @Test
+    void lAziendaAlfaAppartieneAlloStudioAmministratoDalConsulente() {
+        String organizzazione = jdbc.queryForObject("""
+                SELECT o.nome FROM SoggettoNIS s JOIN Organizzazione o ON o.id = s.organizzazione_id
+                JOIN UtenteOrganizzazione uo ON uo.organizzazione_id = o.id
+                WHERE s.codice_fiscale = '01234567890' AND uo.utente = 'consulente.demo'
+                """, String.class);
+
+        assertThat(organizzazione).isEqualTo("Studio Rinaldi & Partner");
+    }
 }

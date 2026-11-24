@@ -7,6 +7,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import it.gformy.nis2.comune.Errori;
+import it.gformy.nis2.organizzazioni.ModelloOrganizzazioni.StatoOrganizzazione;
+import it.gformy.nis2.organizzazioni.OrganizzazioneRepository;
+import it.gformy.nis2.organizzazioni.OrganizzazioneRepository.AppartenenzaSoggetto;
 
 /**
  * Controllo di accesso per soggetto: il cuore dell'isolamento tra clienti.
@@ -15,7 +18,15 @@ import it.gformy.nis2.comune.Errori;
  * {@code @PreAuthorize("@accessoSoggetti.puoLeggere(#id)")}, cosi' il controllo
  * avviene prima di eseguire qualunque query sui dati del soggetto.
  *
- * Un soggetto a cui l'utente non e' assegnato risulta "non trovato" (404) e non
+ * Chi accede a un soggetto:
+ * <ul>
+ *   <li>l'amministratore della piattaforma (ruolo Keycloak AMMINISTRATORE), sempre;</li>
+ *   <li>gli amministratori dell'organizzazione a cui il soggetto appartiene, come un referente NIS;</li>
+ *   <li>gli utenti assegnati al soggetto, con il ruolo dell'assegnazione.</li>
+ * </ul>
+ * Se l'organizzazione e' sospesa i dati restano consultabili ma non modificabili.
+ *
+ * Un soggetto a cui l'utente non ha accesso risulta "non trovato" (404) e non
  * "vietato" (403): chi prova id a caso non scopre nemmeno quali soggetti esistono.
  * Un revisore che tenta una modifica riceve invece 403, perche' il soggetto lo vede gia'.
  */
@@ -25,31 +36,66 @@ public class AccessoSoggetti {
     public static final String RUOLO_AMMINISTRATORE = "ROLE_AMMINISTRATORE";
 
     private final AssegnazioneRepository assegnazioni;
+    private final OrganizzazioneRepository organizzazioni;
 
-    public AccessoSoggetti(AssegnazioneRepository assegnazioni) {
+    public AccessoSoggetti(AssegnazioneRepository assegnazioni, OrganizzazioneRepository organizzazioni) {
         this.assegnazioni = assegnazioni;
+        this.organizzazioni = organizzazioni;
+    }
+
+    private record Accesso(boolean amministratoreOrganizzazione, RuoloSoggetto ruolo, boolean sospesa) {
+
+        boolean puoModificare() {
+            return !sospesa && (amministratoreOrganizzazione || ruolo.puoModificare());
+        }
+
+        boolean puoInviare() {
+            return !sospesa && (amministratoreOrganizzazione || ruolo.puoInviare());
+        }
     }
 
     public boolean puoLeggere(long soggettoId) {
         if (amministratore()) {
             return true;
         }
-        ruoloObbligatorio(soggettoId);
+        accessoObbligatorio(soggettoId);
         return true;
     }
 
     public boolean puoModificare(long soggettoId) {
-        if (amministratore()) {
-            return true;
-        }
-        return ruoloObbligatorio(soggettoId).puoModificare();
+        return amministratore() || accessoObbligatorio(soggettoId).puoModificare();
     }
 
     public boolean puoInviare(long soggettoId) {
+        return amministratore() || accessoObbligatorio(soggettoId).puoInviare();
+    }
+
+    /** Assegnare utenti a un soggetto: amministratore della piattaforma o della sua organizzazione. */
+    public boolean puoGestireAccessi(long soggettoId) {
         if (amministratore()) {
             return true;
         }
-        return ruoloObbligatorio(soggettoId).puoInviare();
+        Accesso accesso = accessoObbligatorio(soggettoId);
+        return accesso.amministratoreOrganizzazione() && !accesso.sospesa();
+    }
+
+    /** Vedere e gestire un'organizzazione: amministratore della piattaforma o suo membro. */
+    public boolean puoGestireOrganizzazione(long organizzazioneId) {
+        if (amministratore()) {
+            return true;
+        }
+        if (organizzazioneUtente().filter(id -> id == organizzazioneId).isEmpty()) {
+            throw Errori.nonTrovato("Organizzazione " + organizzazioneId);
+        }
+        return true;
+    }
+
+    public boolean amministratoreOrganizzazione() {
+        return organizzazioneUtente().isPresent();
+    }
+
+    public Optional<Long> organizzazioneUtente() {
+        return organizzazioni.organizzazioneDi(utente());
     }
 
     public Optional<RuoloSoggetto> ruolo(long soggettoId) {
@@ -65,8 +111,17 @@ public class AccessoSoggetti {
         return autenticazione().getName();
     }
 
-    private RuoloSoggetto ruoloObbligatorio(long soggettoId) {
-        return ruolo(soggettoId).orElseThrow(() -> Errori.nonTrovato("Soggetto " + soggettoId));
+    private Accesso accessoObbligatorio(long soggettoId) {
+        AppartenenzaSoggetto appartenenza = organizzazioni.appartenenza(soggettoId)
+                .orElseThrow(() -> Errori.nonTrovato("Soggetto " + soggettoId));
+        boolean sospesa = appartenenza.stato() == StatoOrganizzazione.SOSPESA;
+        boolean amministratoreOrganizzazione = organizzazioneUtente()
+                .filter(id -> id == appartenenza.organizzazioneId()).isPresent();
+        if (amministratoreOrganizzazione) {
+            return new Accesso(true, RuoloSoggetto.REFERENTE_NIS, sospesa);
+        }
+        RuoloSoggetto ruolo = ruolo(soggettoId).orElseThrow(() -> Errori.nonTrovato("Soggetto " + soggettoId));
+        return new Accesso(false, ruolo, sospesa);
     }
 
     private static Authentication autenticazione() {

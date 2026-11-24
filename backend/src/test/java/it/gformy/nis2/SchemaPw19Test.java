@@ -19,7 +19,8 @@ class SchemaPw19Test extends OracleTestBase {
                 """, Integer.class, PROPRIETARIO);
 
         // 47 tabelle del PW + UtenteSoggetto (V5) + DocumentoGovernanceFile (V10) + 3 della formazione (V11)
-        assertThat(tabelle).isEqualTo(52);
+        // + 3 delle organizzazioni (V12)
+        assertThat(tabelle).isEqualTo(55);
     }
 
     @Test

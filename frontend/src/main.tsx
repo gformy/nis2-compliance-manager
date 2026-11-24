@@ -12,6 +12,8 @@ import { ElencoSoggetti } from './pagine/ElencoSoggetti'
 import { SchedaConformita } from './pagine/conformita/SchedaConformita'
 import { SchedaFormazione } from './pagine/formazione/SchedaFormazione'
 import { SchedaGovernance } from './pagine/governance/SchedaGovernance'
+import { DettaglioOrganizzazione } from './pagine/organizzazioni/DettaglioOrganizzazione'
+import { PaginaOrganizzazioni } from './pagine/organizzazioni/PaginaOrganizzazioni'
 import { DettaglioIncidente } from './pagine/incidenti/DettaglioIncidente'
 import { ElencoIncidenti } from './pagine/incidenti/ElencoIncidenti'
 import { ConfrontoInvii } from './pagine/invii/ConfrontoInvii'
@@ -52,6 +54,8 @@ const router = createBrowserRouter([
       },
       { path: '/fornitori', element: <CatalogoFornitori /> },
       { path: '/fornitori/:fornitoreId', element: <DettaglioFornitore /> },
+      { path: '/organizzazioni', element: <PaginaOrganizzazioni /> },
+      { path: '/organizzazioni/:organizzazioneId', element: <DettaglioOrganizzazione /> },
     ],
   },
 ])

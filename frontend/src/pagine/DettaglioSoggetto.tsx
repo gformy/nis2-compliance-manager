@@ -1,8 +1,7 @@
 import { Box, Breadcrumbs, Link, Stack, Tab, Tabs, Typography } from '@mui/material'
 import { Link as RouterLink, Outlet, useLocation, useParams } from 'react-router'
 import { ErroreApi } from '../api/client'
-import { puoInviare, puoModificare, useProfilo } from '../api/profilo'
-import { useSoggetto } from '../api/soggetti'
+import { usePermessi, useSoggetto } from '../api/soggetti'
 import { StatoCaricamento } from '../componenti/StatoCaricamento'
 import { useContestoSoggetto, type ContestoSoggetto } from './contestoSoggetto'
 import { FormAnagrafica } from './FormAnagrafica'
@@ -26,7 +25,7 @@ export function DettaglioSoggetto() {
   const id = Number(useParams().id)
   const { pathname } = useLocation()
   const { data: soggetto, error } = useSoggetto(id)
-  const { data: profilo } = useProfilo()
+  const { data: permessi } = usePermessi(id)
   // Per un soggetto non assegnato il backend risponde 404, come se non esistesse
   const errore =
     error instanceof ErroreApi && error.stato === 404
@@ -70,9 +69,9 @@ export function DettaglioSoggetto() {
             context={
               {
                 soggetto,
-                modificabile: puoModificare(profilo, soggetto.id),
-                inviabile: puoInviare(profilo, soggetto.id),
-                amministratore: profilo?.amministratore ?? false,
+                modificabile: permessi?.modificare ?? false,
+                inviabile: permessi?.inviare ?? false,
+                amministratore: permessi?.gestireAccessi ?? false,
               } satisfies ContestoSoggetto
             }
           />
