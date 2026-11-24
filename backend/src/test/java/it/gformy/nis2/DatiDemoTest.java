@@ -2,6 +2,8 @@ package it.gformy.nis2;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -58,5 +60,18 @@ class DatiDemoTest extends OracleTestBase {
                 """, Integer.class);
 
         assertThat(elementi).isEqualTo(6);
+    }
+
+    @Test
+    void ilProfiloDemoMostraDocumentiInStatiDiversi() {
+        List<String> codici = jdbc.queryForList("""
+                SELECT td.codice FROM DocumentoGovernance d
+                JOIN TipoDocumentoGovernance td ON td.id = d.tipo_documento_id
+                JOIN SoggettoNIS s ON s.id = d.soggetto_nis_id
+                JOIN DocumentoGovernanceFile f ON f.documento_id = d.id
+                WHERE s.codice_fiscale = '01234567890' ORDER BY td.codice
+                """, String.class);
+
+        assertThat(codici).containsExactly("GV.PO-01-a", "GV.PO-01-p", "PR.AT-01", "RS.MA-01");
     }
 }

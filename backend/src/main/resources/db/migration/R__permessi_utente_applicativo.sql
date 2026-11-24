@@ -9,8 +9,9 @@
 -- di blocco del PW, il permesso proprio non esiste.
 -- UtenteSoggetto (V5) rientra nelle tabelle con lettura e scrittura: le
 -- assegnazioni le modifica solo l'amministratore, controllo fatto dal backend.
--- InvioACN e LogEstrazione sono in sola aggiunta (SELECT, INSERT): un invio
--- registrato e una traccia di estrazione non si correggono ne' si cancellano.
+-- InvioACN, LogEstrazione e DocumentoGovernanceFile sono in sola aggiunta
+-- (SELECT, INSERT): un invio registrato, una traccia di estrazione e un file
+-- caricato non si correggono ne' si cancellano.
 --
 -- Ogni esecuzione revoca prima i permessi sulle tabelle e poi li riassegna:
 -- cosi' un permesso tolto da questo file sparisce anche dai database esistenti.
@@ -36,7 +37,7 @@ BEGIN
               WHERE dropped = 'NO'
                 AND LOWER(table_name) <> LOWER('${flyway:table}')) LOOP
         revoca_tutto(t.table_name);
-        IF t.table_name IN ('INVIOACN', 'LOGESTRAZIONE') THEN
+        IF t.table_name IN ('INVIOACN', 'LOGESTRAZIONE', 'DOCUMENTOGOVERNANCEFILE') THEN
             concedi(t.table_name, 'SELECT, INSERT');
         ELSIF t.table_name LIKE '%STORICO'
            OR t.table_name IN ('REGISTROTABELLE', 'TIPOSOGGETTONIS',

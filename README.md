@@ -84,6 +84,7 @@ Lo schema è quello del PW 19, applicato da Flyway:
 | `V7__misure_sicurezza` | Misure di sicurezza e requisiti ACN delle specifiche di base (estratto del PW) |
 | `V8__gestione_incidenti` | Titolo, stato e autore degli incidenti; una sola pre-notifica, notifica e relazione finale per incidente |
 | `V9__invii_acn` | Autore e note degli invii; viste AS OF dei fornitori e degli adempimenti con chiavi stabili per il confronto |
+| `V10__governance_documentale` | Catalogo delle 16 politiche e dei documenti da approvare (Appendice C ACN), periodicità di riesame, file dei documenti in Oracle |
 | `R__permessi_utente_applicativo` | Permessi minimi dell'utente con cui si collega il backend |
 
 Il backend usa due utenti Oracle: `nis2_owner` possiede lo schema e lo usa solo Flyway; `nis2_app` legge e scrive i dati, senza poter cambiare la struttura né cancellare asset e servizi.
