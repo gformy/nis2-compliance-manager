@@ -352,3 +352,69 @@ BEGIN
     END LOOP;
 END;
 /
+
+-- Formazione dell'azienda Alfa: sei persone, tre attivita' e un registro che
+-- lascia volutamente un buco (l'amministratore di sistema senza formazione
+-- dedicata), cosi' la copertura dei ruoli specializzati non e' al 100%.
+DECLARE
+    v_soggetto NUMBER;
+    v_base     NUMBER;
+    v_cda      NUMBER;
+
+    FUNCTION persona(p_nome VARCHAR2, p_categoria VARCHAR2, p_ruolo VARCHAR2) RETURN NUMBER IS
+        v_id NUMBER;
+    BEGIN
+        INSERT INTO PersonaFormazione (soggetto_nis_id, nome, categoria, ruolo)
+        VALUES (v_soggetto, p_nome, p_categoria, p_ruolo) RETURNING id INTO v_id;
+        RETURN v_id;
+    END;
+
+    PROCEDURE partecipa(p_attivita NUMBER, p_persona NUMBER, p_data DATE, p_esito VARCHAR2) IS
+    BEGIN
+        INSERT INTO PartecipazioneFormazione (attivita_id, persona_id, data_svolgimento, esito_verifica, registrata_da)
+        VALUES (p_attivita, p_persona, p_data, p_esito, 'operatore.demo');
+    END;
+BEGIN
+    SELECT id INTO v_soggetto FROM SoggettoNIS WHERE codice_fiscale = '01234567890';
+
+    FOR x IN (SELECT 1 FROM dual
+              WHERE NOT EXISTS (SELECT 1 FROM PersonaFormazione WHERE soggetto_nis_id = v_soggetto)) LOOP
+        DECLARE
+            v_presidente NUMBER := persona('Laura Verdi', 'ORGANO', 'Presidente del CdA');
+            v_ad         NUMBER := persona('Mario Bianchi', 'ORGANO', 'Amministratore delegato');
+            v_sistemista NUMBER := persona('Paolo Neri', 'RUOLO_SPECIALIZZATO', 'Amministratore di sistema');
+            v_soc        NUMBER := persona('Sara Gallo', 'RUOLO_SPECIALIZZATO', 'Analista SOC');
+            v_acquisti   NUMBER := persona('Giulia Russo', 'PERSONALE', 'Ufficio acquisti');
+            v_tecnico    NUMBER := persona('Luca Ferri', 'PERSONALE', 'Tecnico di cabina');
+            v_spec       NUMBER;
+        BEGIN
+            INSERT INTO AttivitaFormativa (soggetto_nis_id, titolo, contenuti, destinatari, data_prevista,
+                                           durata_ore, modalita_verifica)
+            VALUES (v_soggetto, 'Consapevolezza sulla sicurezza informatica',
+                    'Phishing e ingegneria sociale, gestione delle password, segnalazione degli eventi sospetti',
+                    'TUTTI', ADD_MONTHS(TRUNC(SYSDATE), -3), 2, 'Questionario di 10 domande, soglia 70%')
+            RETURNING id INTO v_base;
+            INSERT INTO AttivitaFormativa (soggetto_nis_id, titolo, contenuti, destinatari, data_prevista, durata_ore)
+            VALUES (v_soggetto, 'NIS2 per gli organi di amministrazione',
+                    'Responsabilita'' degli organi (art. 23 D.Lgs. 138/2024), approvazione delle politiche, gestione del rischio',
+                    'ORGANO', ADD_MONTHS(TRUNC(SYSDATE), -1), 3)
+            RETURNING id INTO v_cda;
+            INSERT INTO AttivitaFormativa (soggetto_nis_id, titolo, contenuti, destinatari, data_prevista,
+                                           durata_ore, modalita_verifica)
+            VALUES (v_soggetto, 'Hardening e risposta agli eventi per amministratori di sistema',
+                    'Configurazione sicura dei sistemi, minacce note al settore energetico, comportamento in caso di eventi rilevanti',
+                    'RUOLO_SPECIALIZZATO', TRUNC(SYSDATE) + 20, 8, 'Esercitazione pratica valutata dal CISO')
+            RETURNING id INTO v_spec;
+
+            partecipa(v_base, v_presidente, ADD_MONTHS(TRUNC(SYSDATE), -3), 'SUPERATA');
+            partecipa(v_base, v_ad, ADD_MONTHS(TRUNC(SYSDATE), -3), 'SUPERATA');
+            partecipa(v_base, v_acquisti, ADD_MONTHS(TRUNC(SYSDATE), -3), 'NON_SUPERATA');
+            partecipa(v_base, v_acquisti, ADD_MONTHS(TRUNC(SYSDATE), -2), 'SUPERATA');
+            partecipa(v_base, v_tecnico, ADD_MONTHS(TRUNC(SYSDATE), -3), 'SUPERATA');
+            partecipa(v_base, v_sistemista, ADD_MONTHS(TRUNC(SYSDATE), -3), 'SUPERATA');
+            partecipa(v_cda, v_presidente, ADD_MONTHS(TRUNC(SYSDATE), -1), 'NON_PREVISTA');
+            partecipa(v_cda, v_ad, ADD_MONTHS(TRUNC(SYSDATE), -1), 'NON_PREVISTA');
+        END;
+    END LOOP;
+END;
+/

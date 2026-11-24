@@ -74,4 +74,16 @@ class DatiDemoTest extends OracleTestBase {
 
         assertThat(codici).containsExactly("GV.PO-01-a", "GV.PO-01-p", "PR.AT-01", "RS.MA-01");
     }
+
+    @Test
+    void ilProfiloDemoHaUnRegistroDiFormazione() {
+        Integer righe = jdbc.queryForObject("""
+                SELECT COUNT(*) FROM PartecipazioneFormazione p
+                JOIN PersonaFormazione pe ON pe.id = p.persona_id
+                JOIN SoggettoNIS s ON s.id = pe.soggetto_nis_id
+                WHERE s.codice_fiscale = '01234567890'
+                """, Integer.class);
+
+        assertThat(righe).isEqualTo(8);
+    }
 }
