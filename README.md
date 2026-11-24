@@ -51,7 +51,8 @@ Il profilo demo carica anche, per l'azienda Alfa:
 - tre fornitori con le relative dipendenze;
 - le valutazioni di quattro requisiti ACN;
 - due incidenti: uno chiuso, con tutte le trasmissioni al CSIRT, e uno aperto da poche ore, con la pre-notifica in scadenza;
-- un primo invio ACN.
+- un primo invio ACN;
+- organi di amministrazione e quattro documenti di governance: una politica valida, un piano con il riesame in scadenza, uno con il riesame scaduto e una politica da approvare.
 
 Registrare un invio spetta al referente NIS. Tra gli utenti demo può farlo solo `admin.demo`: modifica qualcosa nell'inventario, registra un secondo invio e confronta i due dalla scheda *Invii ACN*.
 
@@ -84,6 +85,7 @@ Lo schema è quello del PW 19, applicato da Flyway:
 | `V7__misure_sicurezza` | Misure di sicurezza e requisiti ACN delle specifiche di base (estratto del PW) |
 | `V8__gestione_incidenti` | Titolo, stato e autore degli incidenti; una sola pre-notifica, notifica e relazione finale per incidente |
 | `V9__invii_acn` | Autore e note degli invii; viste AS OF dei fornitori e degli adempimenti con chiavi stabili per il confronto |
+| `V10__governance_documentale` | Catalogo delle 16 politiche e dei documenti da approvare (Appendice C ACN), periodicità di riesame, file dei documenti in Oracle |
 | `R__permessi_utente_applicativo` | Permessi minimi dell'utente con cui si collega il backend |
 
 Il backend usa due utenti Oracle: `nis2_owner` possiede lo schema e lo usa solo Flyway; `nis2_app` legge e scrive i dati, senza poter cambiare la struttura né cancellare asset e servizi.

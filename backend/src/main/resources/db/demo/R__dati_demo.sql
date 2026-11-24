@@ -279,3 +279,76 @@ SELECT s.id, 'REGISTRAZIONE', 2026, 'Prima registrazione sulla piattaforma ACN',
 FROM SoggettoNIS s
 WHERE s.codice_fiscale = '01234567890'
   AND NOT EXISTS (SELECT 1 FROM InvioACN i WHERE i.soggetto_nis_id = s.id);
+
+-- Governance dell'azienda Alfa: organi di amministrazione e alcuni documenti in
+-- stati diversi. Le date sono relative a oggi, cosi' gli stati restano gli stessi
+-- in qualunque giorno si avvii la demo:
+--  * politica di gestione del rischio: approvata 2 mesi fa (valida);
+--  * piano di formazione: approvato 11 mesi e 20 giorni fa (riesame in scadenza);
+--  * piano di gestione degli incidenti: approvato 14 mesi fa (riesame scaduto);
+--  * politica di risposta agli incidenti: caricata ma non ancora approvata.
+DECLARE
+    v_soggetto NUMBER;
+    v_cda      NUMBER;
+
+    FUNCTION pdf(p_titolo VARCHAR2) RETURN RAW IS
+        v_testo VARCHAR2(2000);
+    BEGIN
+        v_testo := '%PDF-1.4' || CHR(10)
+            || '1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj' || CHR(10)
+            || '2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj' || CHR(10)
+            || '3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 595 842]/Contents 4 0 R'
+            || '/Resources<</Font<</F1 5 0 R>>>>>>endobj' || CHR(10)
+            || '4 0 obj<</Length ' || (LENGTH(p_titolo) + 60) || '>>stream' || CHR(10)
+            || 'BT /F1 16 Tf 60 780 Td (' || p_titolo || ') Tj 0 -24 Td (Documento dimostrativo) Tj ET'
+            || CHR(10) || 'endstream endobj' || CHR(10)
+            || '5 0 obj<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>endobj' || CHR(10)
+            || 'trailer<</Root 1 0 R>>' || CHR(10) || '%%EOF';
+        RETURN UTL_RAW.CAST_TO_RAW(v_testo);
+    END;
+
+    PROCEDURE documento(p_codice VARCHAR2, p_titolo VARCHAR2, p_mesi_fa NUMBER, p_giorni_fa NUMBER) IS
+        v_tipo NUMBER;
+        v_doc  NUMBER;
+        v_file RAW(2000);
+        v_hash VARCHAR2(64);
+        v_data DATE;
+    BEGIN
+        SELECT id INTO v_tipo FROM TipoDocumentoGovernance WHERE codice = p_codice;
+        INSERT INTO DocumentoGovernance (soggetto_nis_id, tipo_documento_id, versione, periodicita_riesame_mesi)
+        VALUES (v_soggetto, v_tipo, '1.0', 12)
+        RETURNING id INTO v_doc;
+        v_file := pdf(p_titolo);
+        SELECT LOWER(RAWTOHEX(STANDARD_HASH(v_file, 'SHA256'))) INTO v_hash FROM dual;
+        INSERT INTO DocumentoGovernanceFile (documento_id, versione_documento, nome_file, content_type,
+                                             dimensione, sha256, contenuto, caricato_da)
+        VALUES (v_doc, '1.0', LOWER(REPLACE(p_codice, '.', '-')) || '.pdf', 'application/pdf',
+                UTL_RAW.LENGTH(v_file), v_hash, v_file, 'operatore.demo');
+        IF p_mesi_fa IS NOT NULL THEN
+            v_data := ADD_MONTHS(TRUNC(SYSDATE), -p_mesi_fa) - p_giorni_fa;
+            UPDATE DocumentoGovernance
+            SET data_approvazione = v_data, approvato_da = v_cda, data_ultimo_riesame = v_data
+            WHERE id = v_doc;
+        END IF;
+    END;
+BEGIN
+    SELECT id INTO v_soggetto FROM SoggettoNIS WHERE codice_fiscale = '01234567890';
+
+    SELECT MIN(id) INTO v_cda FROM OrganoAmministrazione WHERE soggetto_nis_id = v_soggetto;
+    IF v_cda IS NULL THEN
+        INSERT INTO OrganoAmministrazione (soggetto_nis_id, nome, ruolo)
+        VALUES (v_soggetto, 'Consiglio di amministrazione', 'Organo di amministrazione')
+        RETURNING id INTO v_cda;
+        INSERT INTO OrganoAmministrazione (soggetto_nis_id, nome, ruolo)
+        VALUES (v_soggetto, 'Comitato rischi e sicurezza', 'Organo direttivo');
+    END IF;
+
+    FOR d IN (SELECT 1 FROM dual
+              WHERE NOT EXISTS (SELECT 1 FROM DocumentoGovernance WHERE soggetto_nis_id = v_soggetto)) LOOP
+        documento('GV.PO-01-a', 'Politica di gestione del rischio', 2, 0);
+        documento('PR.AT-01', 'Piano di formazione', 11, 20);
+        documento('RS.MA-01', 'Piano di gestione degli incidenti', 14, 0);
+        documento('GV.PO-01-p', 'Politica di risposta agli incidenti', NULL, NULL);
+    END LOOP;
+END;
+/

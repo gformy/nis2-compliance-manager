@@ -43,6 +43,32 @@ public abstract class ApiTestBase extends OracleTestBase {
                 new String(res.getBody().readAllBytes(), StandardCharsets.UTF_8)));
     }
 
+    /** POST multipart con un solo file nella parte "file". */
+    protected Risposta caricaFile(String percorso, String token, String nomeFile, byte[] contenuto) {
+        org.springframework.util.MultiValueMap<String, Object> parti = new org.springframework.util.LinkedMultiValueMap<>();
+        parti.add("file", new org.springframework.core.io.ByteArrayResource(contenuto) {
+            @Override
+            public String getFilename() {
+                return nomeFile;
+            }
+        });
+        return client.post().uri(percorso)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(parti)
+                .exchange((req, res) -> new Risposta(
+                        res.getStatusCode().value(),
+                        new String(res.getBody().readAllBytes(), StandardCharsets.UTF_8)));
+    }
+
+    /** GET di un contenuto binario: restituisce i byte (vuoti se lo stato non e' 200). */
+    protected byte[] scaricaByte(String percorso, String token) {
+        return client.get().uri(percorso)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .exchange((req, res) -> res.getStatusCode().value() == 200
+                        ? res.getBody().readAllBytes() : new byte[0]);
+    }
+
     protected Risposta get(String percorso, String token) {
         return chiama(HttpMethod.GET, percorso, token, null);
     }

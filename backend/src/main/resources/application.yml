@@ -22,6 +22,12 @@ spring:
     # avvii non c'e': non deve far fallire la validazione di Flyway.
     ignore-migration-patterns: "*:future,repeatable:missing"
 
+  # Documenti di governance: file fino a 10 MB (vedi FileCaricati).
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 11MB
+
   # Il backend accetta solo token firmati dal realm nis2 di Keycloak.
   # Le chiavi pubbliche si scaricano dall'issuer alla prima richiesta.
   security:
