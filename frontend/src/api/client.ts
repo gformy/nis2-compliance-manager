@@ -30,7 +30,7 @@ export function useApi() {
         ...opzioni,
         headers: {
           Accept: 'application/json',
-          ...(opzioni.body ? { 'Content-Type': 'application/json' } : {}),
+          ...(typeof opzioni.body === 'string' ? { 'Content-Type': 'application/json' } : {}),
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       })

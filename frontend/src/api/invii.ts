@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback } from 'react'
-import { useAuth } from 'react-oidc-context'
-import { ErroreApi, useApi, type Problema } from './client'
+import { useApi } from './client'
+import { useScarica } from './scarica'
 
 export type TipoInvio = 'REGISTRAZIONE' | 'AGGIORNAMENTO_ANNUALE' | 'AGGIORNAMENTO_CONTINUO' | 'CATEGORIZZAZIONE'
 export type Sezione = 'elementi' | 'fornitori' | 'adempimenti'
@@ -123,30 +123,15 @@ export function useRegistraInvio(soggettoId: number) {
   })
 }
 
-/**
- * Scarica il CSV di una sezione. Serve il token, quindi non basta un link:
- * si scarica con fetch e si salva il blob. Il backend traccia l'estrazione.
- */
+/** Scarica il CSV di una sezione; il backend traccia l'estrazione, quindi si aggiorna il registro. */
 export function useScaricaCsv(soggettoId: number, id: number) {
-  const token = useAuth().user?.access_token
+  const scarica = useScarica()
   const cache = useQueryClient()
   return useCallback(
     async (sezione: Sezione) => {
-      const risposta = await fetch(`${base(soggettoId)}/${id}/csv/${sezione}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      })
-      if (!risposta.ok) {
-        const problema = (await risposta.json().catch(() => undefined)) as Problema | undefined
-        throw new ErroreApi(risposta.status, problema)
-      }
-      const url = URL.createObjectURL(await risposta.blob())
-      const collegamento = document.createElement('a')
-      collegamento.href = url
-      collegamento.download = `invio-${id}-${sezione}.csv`
-      collegamento.click()
-      URL.revokeObjectURL(url)
+      await scarica(`${base(soggettoId)}/${id}/csv/${sezione}`, `invio-${id}-${sezione}.csv`)
       void cache.invalidateQueries({ queryKey: ['invii', soggettoId, id, 'estrazioni'] })
     },
-    [soggettoId, id, token, cache],
+    [soggettoId, id, scarica, cache],
   )
 }

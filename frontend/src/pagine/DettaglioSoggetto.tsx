@@ -15,6 +15,7 @@ const schede = [
   { percorso: 'servizi', etichetta: 'Servizi' },
   { percorso: 'fornitori', etichetta: 'Fornitori' },
   { percorso: 'conformita', etichetta: 'Conformità' },
+  { percorso: 'governance', etichetta: 'Governance' },
   { percorso: 'incidenti', etichetta: 'Incidenti' },
   { percorso: 'invii', etichetta: 'Invii ACN' },
 ]
