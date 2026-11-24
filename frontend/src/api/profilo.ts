@@ -13,6 +13,8 @@ export interface Profilo {
   utente: string
   amministratore: boolean
   soggetti: { soggettoId: number; ruolo: RuoloSoggetto }[]
+  /** Organizzazione che l'utente amministra (MSP, studio, cliente diretto). */
+  organizzazione: { id: number; nome: string; sospesa: boolean } | null
 }
 
 export interface Assegnazione {
@@ -21,29 +23,6 @@ export interface Assegnazione {
   ruolo: RuoloSoggetto
   dataAssegnazione: string
   assegnatoDa: string
-}
-
-/**
- * Serve solo a mostrare o nascondere i comandi: il backend ricontrolla
- * comunque i permessi a ogni richiesta.
- */
-export function puoModificare(profilo: Profilo | undefined, soggettoId: number): boolean {
-  if (!profilo) {
-    return false
-  }
-  if (profilo.amministratore) {
-    return true
-  }
-  const ruolo = profilo.soggetti.find((s) => s.soggettoId === soggettoId)?.ruolo
-  return ruolo === 'REFERENTE_NIS' || ruolo === 'OPERATORE'
-}
-
-/** Registrare un invio ACN spetta al referente NIS (o all'amministratore). */
-export function puoInviare(profilo: Profilo | undefined, soggettoId: number): boolean {
-  if (!profilo) {
-    return false
-  }
-  return profilo.amministratore || profilo.soggetti.find((s) => s.soggettoId === soggettoId)?.ruolo === 'REFERENTE_NIS'
 }
 
 export function useProfilo() {

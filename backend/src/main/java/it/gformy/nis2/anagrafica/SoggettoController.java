@@ -99,6 +99,16 @@ public class SoggettoController {
         return repository.trova(id).orElseThrow();
     }
 
+    /** Cosa puo' fare l'utente su questo soggetto: il frontend mostra i comandi di conseguenza. */
+    public record Permessi(boolean modificare, boolean inviare, boolean gestireAccessi) {
+    }
+
+    @GetMapping("/{id}/permessi")
+    @PreAuthorize("@accessoSoggetti.puoLeggere(#id)")
+    public Permessi permessi(@PathVariable long id) {
+        return new Permessi(accesso.puoModificare(id), accesso.puoInviare(id), accesso.puoGestireAccessi(id));
+    }
+
     @GetMapping("/{id}/versioni")
     @PreAuthorize("@accessoSoggetti.puoLeggere(#id)")
     public List<VersioneSoggetto> versioni(@PathVariable long id) {

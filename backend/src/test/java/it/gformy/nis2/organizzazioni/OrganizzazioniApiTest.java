@@ -57,7 +57,7 @@ class OrganizzazioniApiTest extends ApiTestBase {
         assertThat(secondo.stato()).isEqualTo(409);
         assertThat(secondo.<String>json("$.detail")).contains("al massimo 1");
         assertThat(dettaglio.<Integer>json("$.soggetti")).isEqualTo(1);
-        assertThat(dettaglio.<Double>json("$.costoMensile")).isEqualTo(59.0);
+        assertThat(dettaglio.<Number>json("$.costoMensile").doubleValue()).isEqualTo(59.0);
     }
 
     @Test
@@ -114,6 +114,9 @@ class OrganizzazioniApiTest extends ApiTestBase {
         assertThat(clienteLegge.stato()).isEqualTo(200);
         assertThat(clienteAssegna.stato()).isEqualTo(403);
         assertThat(profilo.<Integer>json("$.organizzazione.id")).isEqualTo((int) org);
+        assertThat(get("/api/v1/soggetti/" + soggetto + "/permessi", admin).<Boolean>json("$.gestireAccessi")).isTrue();
+        assertThat(get("/api/v1/soggetti/" + soggetto + "/permessi", TokenDiTest.token(cliente))
+                .<Boolean>json("$.gestireAccessi")).isFalse();
     }
 
     @Test

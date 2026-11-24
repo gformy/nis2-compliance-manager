@@ -7,6 +7,7 @@ export interface ContestoSoggetto {
   modificabile: boolean
   /** Registrare invii ACN: solo referente NIS e amministratore. */
   inviabile: boolean
+  /** Gestire gli accessi: amministratore della piattaforma o dell'organizzazione del soggetto. */
   amministratore: boolean
 }
 

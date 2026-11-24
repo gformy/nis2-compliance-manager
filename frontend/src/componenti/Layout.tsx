@@ -23,12 +23,19 @@ export function Layout() {
           <Button color="inherit" component={RouterLink} to="/">
             Soggetti
           </Button>
-          <Button color="inherit" component={RouterLink} to="/fornitori" sx={{ mr: 2 }}>
+          <Button color="inherit" component={RouterLink} to="/fornitori">
             Fornitori
           </Button>
-          {profilo?.amministratore && (
-            <Chip label="Amministratore" size="small" color="secondary" sx={{ mr: 2 }} />
+          {(profilo?.amministratore || profilo?.organizzazione) && (
+            <Button color="inherit" component={RouterLink} to="/organizzazioni">
+              {profilo.amministratore ? 'Organizzazioni' : 'La mia organizzazione'}
+            </Button>
           )}
+          <Box sx={{ mr: 2 }} />
+          {profilo?.organizzazione?.sospesa && (
+            <Chip label="Organizzazione sospesa" size="small" color="warning" sx={{ mr: 2 }} />
+          )}
+          {profilo?.amministratore && <Chip label="Amministratore" size="small" color="secondary" sx={{ mr: 2 }} />}
           {utente && (
             <Typography variant="body2" sx={{ mr: 2 }}>
               {utente}
