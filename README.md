@@ -100,4 +100,4 @@ In sviluppo. La roadmap è divisa in tappe; ogni tappa arriva con una pull reque
 
 ## Licenza
 
-[PolyForm Noncommercial 1.0.0](LICENSE.md): il codice si può leggere, studiare e usare per scopi non commerciali. Per l'uso commerciale serve un accordo con l'autore.
+[PolyForm Noncommercial 1.0.0](LICENSE.md): il codice si può leggere, studiare e usare per scopi non commerciali. Per l'uso commerciale serve un accordo con l'autore: una licenza commerciale per i clienti diretti oppure un contratto di rivendita per MSP e studi di consulenza, che gestiscono i soggetti dei propri clienti come organizzazione sulla piattaforma (piani Base, Professional e Partner, con prezzo per soggetto gestito).
