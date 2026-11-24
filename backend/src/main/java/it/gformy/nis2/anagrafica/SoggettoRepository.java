@@ -33,38 +33,42 @@ public class SoggettoRepository {
         this.jdbc = jdbc;
     }
 
+    private static final String SINTESI = """
+            SELECT DISTINCT s.id, s.codice_fiscale, s.denominazione, t.codice AS tipo_soggetto,
+                   o.id AS organizzazione_id, o.nome AS organizzazione
+            FROM SoggettoNIS s
+            JOIN TipoSoggettoNIS t ON t.id = s.tipo_soggetto_id
+            JOIN Organizzazione o ON o.id = s.organizzazione_id
+            """;
+
     public List<SoggettoSintesi> elenco() {
-        return jdbc.sql("""
-                SELECT s.id, s.codice_fiscale, s.denominazione, t.codice AS tipo_soggetto
-                FROM SoggettoNIS s
-                JOIN TipoSoggettoNIS t ON t.id = s.tipo_soggetto_id
+        return jdbc.sql(SINTESI + " ORDER BY s.denominazione").query(SoggettoRepository::sintesi).list();
+    }
+
+    /**
+     * Solo i soggetti a cui l'utente e' assegnato o che appartengono all'organizzazione
+     * che amministra: il filtro e' nella query, non nel codice Java.
+     */
+    public List<SoggettoSintesi> elencoPerUtente(String utente) {
+        return jdbc.sql(SINTESI + """
+                WHERE s.id IN (SELECT us.soggetto_nis_id FROM UtenteSoggetto us WHERE us.utente = ?)
+                   OR s.organizzazione_id IN (SELECT uo.organizzazione_id FROM UtenteOrganizzazione uo
+                                              WHERE uo.utente = ?)
                 ORDER BY s.denominazione
                 """)
-                .query((rs, n) -> new SoggettoSintesi(
-                        rs.getLong("id"),
-                        rs.getString("codice_fiscale"),
-                        rs.getString("denominazione"),
-                        TipoSoggetto.valueOf(rs.getString("tipo_soggetto"))))
+                .params(utente, utente)
+                .query(SoggettoRepository::sintesi)
                 .list();
     }
 
-    /** Solo i soggetti a cui l'utente e' assegnato: il filtro e' nella query, non nel codice Java. */
-    public List<SoggettoSintesi> elencoPerUtente(String utente) {
-        return jdbc.sql("""
-                SELECT s.id, s.codice_fiscale, s.denominazione, t.codice AS tipo_soggetto
-                FROM SoggettoNIS s
-                JOIN TipoSoggettoNIS t ON t.id = s.tipo_soggetto_id
-                JOIN UtenteSoggetto us ON us.soggetto_nis_id = s.id
-                WHERE us.utente = ?
-                ORDER BY s.denominazione
-                """)
-                .param(utente)
-                .query((rs, n) -> new SoggettoSintesi(
-                        rs.getLong("id"),
-                        rs.getString("codice_fiscale"),
-                        rs.getString("denominazione"),
-                        TipoSoggetto.valueOf(rs.getString("tipo_soggetto"))))
-                .list();
+    private static SoggettoSintesi sintesi(java.sql.ResultSet rs, int n) throws java.sql.SQLException {
+        return new SoggettoSintesi(
+                rs.getLong("id"),
+                rs.getString("codice_fiscale"),
+                rs.getString("denominazione"),
+                TipoSoggetto.valueOf(rs.getString("tipo_soggetto")),
+                rs.getLong("organizzazione_id"),
+                rs.getString("organizzazione"));
     }
 
     public boolean esiste(long id) {
@@ -85,17 +89,17 @@ public class SoggettoRepository {
                 .optional();
     }
 
-    public long inserisci(String codiceFiscale, DatiSoggetto dati) {
+    public long inserisci(String codiceFiscale, DatiSoggetto dati, long organizzazioneId) {
         KeyHolder chiave = new GeneratedKeyHolder();
         jdbc.sql("""
                 INSERT INTO SoggettoNIS (codice_fiscale, denominazione, indirizzo_sede_legale, pec,
                                          email_funzionale, telefono, fatturato, bilancio, n_dipendenti,
-                                         tipo_soggetto_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT id FROM TipoSoggettoNIS WHERE codice = ?))
+                                         tipo_soggetto_id, organizzazione_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT id FROM TipoSoggettoNIS WHERE codice = ?), ?)
                 """)
                 .params(codiceFiscale, dati.denominazione(), dati.indirizzoSedeLegale(), dati.pec(),
                         dati.emailFunzionale(), dati.telefono(), dati.fatturato(), dati.bilancio(),
-                        dati.numeroDipendenti(), dati.tipoSoggetto().name())
+                        dati.numeroDipendenti(), dati.tipoSoggetto().name(), organizzazioneId)
                 .update(chiave, "ID");
         return chiave.getKeyAs(Number.class).longValue();
     }

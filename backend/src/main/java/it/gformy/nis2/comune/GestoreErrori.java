@@ -45,6 +45,20 @@ public class GestoreErrori extends ResponseEntityExceptionHandler {
                 "Esiste gia' un elemento con lo stesso identificativo");
     }
 
+    /**
+     * Regole imposte dai trigger con RAISE_APPLICATION_ERROR (V12): quota del piano (ORA-20010)
+     * e isolamento tra organizzazioni (ORA-20011). Si restituisce il messaggio del trigger.
+     */
+    @ExceptionHandler(org.springframework.jdbc.UncategorizedSQLException.class)
+    ProblemDetail regolaDelDatabase(org.springframework.jdbc.UncategorizedSQLException eccezione) {
+        java.sql.SQLException sql = eccezione.getSQLException();
+        if (sql != null && (sql.getErrorCode() == 20010 || sql.getErrorCode() == 20011)) {
+            String messaggio = sql.getMessage().replaceFirst("(?s)^ORA-200\\d\\d: ", "").split("\\R")[0];
+            return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, messaggio);
+        }
+        throw eccezione;
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     ProblemDetail vincoloViolato(DataIntegrityViolationException eccezione) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,

@@ -46,7 +46,7 @@ BEGIN
                                'TIPOINCIDENTE', 'INCIDENTEAPPLICABILITA', 'CATEGORIAINCIDENTE',
                                'TIPODOCUMENTOGOVERNANCE', 'DOCUMENTOGOVERNANCEAPPLICABILITA',
                                'MISURASICUREZZA', 'REQUISITOMISURA', 'MISURAAPPLICABILITA',
-                               'CODICECPV') THEN
+                               'CODICECPV', 'PIANOABBONAMENTO') THEN
             concedi(t.table_name, 'SELECT');
         ELSIF t.table_name IN ('ELEMENTOCRITICO', 'ASSET', 'SERVIZIO') THEN
             concedi(t.table_name, 'SELECT, INSERT, UPDATE');

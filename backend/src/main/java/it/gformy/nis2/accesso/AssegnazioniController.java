@@ -27,11 +27,10 @@ import jakarta.validation.constraints.Pattern;
  */
 @RestController
 @RequestMapping("/api/v1/soggetti/{soggettoId}/utenti")
-@PreAuthorize("hasRole('AMMINISTRATORE')")
 public class AssegnazioniController {
 
     /** Formato degli username di Keycloak; impedisce anche di iniettare a capo nei log. */
-    static final String FORMATO_UTENTE = "[a-zA-Z0-9._@-]{1,64}";
+    public static final String FORMATO_UTENTE = "[a-zA-Z0-9._@-]{1,64}";
 
     public record NuovoRuolo(@NotNull RuoloSoggetto ruolo) {
     }
@@ -50,12 +49,14 @@ public class AssegnazioniController {
     }
 
     @GetMapping
+    @PreAuthorize("@accessoSoggetti.puoGestireAccessi(#soggettoId)")
     public List<Assegnazione> elenco(@PathVariable long soggettoId) {
         soggettoEsistente(soggettoId);
         return assegnazioni.perSoggetto(soggettoId);
     }
 
     @PutMapping("/{utente}")
+    @PreAuthorize("@accessoSoggetti.puoGestireAccessi(#soggettoId)")
     public List<Assegnazione> assegna(@PathVariable long soggettoId,
                                       @PathVariable @Pattern(regexp = FORMATO_UTENTE) String utente,
                                       @Valid @RequestBody NuovoRuolo richiesta) {
@@ -67,6 +68,7 @@ public class AssegnazioniController {
     }
 
     @DeleteMapping("/{utente}")
+    @PreAuthorize("@accessoSoggetti.puoGestireAccessi(#soggettoId)")
     public ResponseEntity<Void> rimuovi(@PathVariable long soggettoId,
                                         @PathVariable @Pattern(regexp = FORMATO_UTENTE) String utente) {
         if (!assegnazioni.rimuovi(utente, soggettoId)) {

@@ -45,6 +45,11 @@ public abstract class ApiTestBase extends OracleTestBase {
 
     /** POST multipart con un solo file nella parte "file". */
     protected Risposta caricaFile(String percorso, String token, String nomeFile, byte[] contenuto) {
+        return caricaFileCon(HttpMethod.POST, percorso, token, nomeFile, contenuto);
+    }
+
+    protected Risposta caricaFileCon(HttpMethod metodo, String percorso, String token, String nomeFile,
+                                     byte[] contenuto) {
         org.springframework.util.MultiValueMap<String, Object> parti = new org.springframework.util.LinkedMultiValueMap<>();
         parti.add("file", new org.springframework.core.io.ByteArrayResource(contenuto) {
             @Override
@@ -52,7 +57,7 @@ public abstract class ApiTestBase extends OracleTestBase {
                 return nomeFile;
             }
         });
-        return client.post().uri(percorso)
+        return client.method(metodo).uri(percorso)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(parti)

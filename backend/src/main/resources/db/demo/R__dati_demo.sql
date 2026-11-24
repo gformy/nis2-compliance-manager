@@ -418,3 +418,32 @@ BEGIN
     END LOOP;
 END;
 /
+
+-- Organizzazioni: lo studio di consulenza (rivenditore, piano Partner) gestisce
+-- l'azienda Alfa ed e' amministrato da consulente.demo; il Comune e' un cliente
+-- diretto con il piano Base. consulente.demo non vede il Comune.
+MERGE INTO Organizzazione o
+USING (SELECT 'Studio Rinaldi & Partner' AS nome, '12345678901' AS cf, 'RIVENDITORE' AS tipo, 4 AS piano,
+              'RIV-2026-001' AS contratto FROM dual UNION ALL
+       SELECT 'Comune di Esempio', '80012345678', 'CLIENTE_DIRETTO', 2, 'CLI-2026-014' FROM dual) s
+ON (o.codice_fiscale = s.cf)
+WHEN NOT MATCHED THEN
+    INSERT (nome, codice_fiscale, tipo, piano_id, riferimento_contratto, data_contratto)
+    VALUES (s.nome, s.cf, s.tipo, s.piano, s.contratto, DATE '2026-09-01');
+
+UPDATE SoggettoNIS SET organizzazione_id = (SELECT id FROM Organizzazione WHERE codice_fiscale = '12345678901')
+WHERE codice_fiscale = '01234567890';
+UPDATE SoggettoNIS SET organizzazione_id = (SELECT id FROM Organizzazione WHERE codice_fiscale = '80012345678')
+WHERE codice_fiscale = '80012345678';
+
+-- Utenti demo dello studio: non devono avere accessi a soggetti di altre organizzazioni.
+DELETE FROM UtenteSoggetto
+WHERE utente IN ('operatore.demo', 'revisore.demo')
+  AND soggetto_nis_id IN (SELECT id FROM SoggettoNIS WHERE codice_fiscale = '80012345678');
+
+MERGE INTO UtenteOrganizzazione u
+USING (SELECT 'consulente.demo' AS utente, id AS organizzazione_id FROM Organizzazione
+       WHERE codice_fiscale = '12345678901') s
+ON (u.utente = s.utente)
+WHEN NOT MATCHED THEN INSERT (utente, organizzazione_id, assegnato_da)
+    VALUES (s.utente, s.organizzazione_id, 'admin.demo');

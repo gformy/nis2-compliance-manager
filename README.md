@@ -44,6 +44,7 @@ Apri http://localhost:5173 e accedi con un utente dimostrativo. Al primo accesso
 | `admin.demo` | `Demo-Nis2-2026` | Amministratore della piattaforma |
 | `operatore.demo` | `Demo-Nis2-2026` | Operatore sull'azienda Alfa |
 | `revisore.demo` | `Demo-Nis2-2026` | Revisore (sola lettura) sull'azienda Alfa |
+| `consulente.demo` | `Demo-Nis2-2026` | Amministratore dello studio di consulenza che gestisce l'azienda Alfa |
 
 Il profilo demo carica anche, per l'azienda Alfa:
 
@@ -88,6 +89,7 @@ Lo schema è quello del PW 19, applicato da Flyway:
 | `V9__invii_acn` | Autore e note degli invii; viste AS OF dei fornitori e degli adempimenti con chiavi stabili per il confronto |
 | `V10__governance_documentale` | Catalogo delle 16 politiche e dei documenti da approvare (Appendice C ACN), periodicità di riesame, file dei documenti in Oracle |
 | `V11__formazione` | Persone da formare, attività del piano di formazione e registro delle partecipazioni (PR.AT-01, PR.AT-02) |
+| `V12__organizzazioni` | Organizzazioni clienti (dirette e rivenditori), piani con limite di soggetti, amministratori di organizzazione; quota e isolamento imposti da trigger |
 | `R__permessi_utente_applicativo` | Permessi minimi dell'utente con cui si collega il backend |
 
 Il backend usa due utenti Oracle: `nis2_owner` possiede lo schema e lo usa solo Flyway; `nis2_app` legge e scrive i dati, senza poter cambiare la struttura né cancellare asset e servizi.
