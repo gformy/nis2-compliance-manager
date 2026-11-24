@@ -4,6 +4,7 @@ import { ErroreApi } from '../api/client'
 import { usePermessi, useSoggetto } from '../api/soggetti'
 import { StatoCaricamento } from '../componenti/StatoCaricamento'
 import { useContestoSoggetto, type ContestoSoggetto } from './contestoSoggetto'
+import { ScaricaReport } from './ScaricaReport'
 import { FormAnagrafica } from './FormAnagrafica'
 import { GestioneAccessi } from './GestioneAccessi'
 import { StoricoVersioni } from './StoricoVersioni'
@@ -46,12 +47,15 @@ export function DettaglioSoggetto() {
         <StatoCaricamento errore={errore} />
       ) : (
         <>
-          <div>
-            <Typography variant="h4" component="h1">
-              {soggetto.denominazione}
-            </Typography>
-            <Typography color="text.secondary">Codice fiscale {soggetto.codiceFiscale}</Typography>
-          </div>
+          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+            <Box sx={{ flexGrow: 1 }}>
+              <Typography variant="h4" component="h1">
+                {soggetto.denominazione}
+              </Typography>
+              <Typography color="text.secondary">Codice fiscale {soggetto.codiceFiscale}</Typography>
+            </Box>
+            <ScaricaReport soggettoId={soggetto.id} codiceFiscale={soggetto.codiceFiscale} />
+          </Box>
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
             <Tabs value={schedaAttiva} variant="scrollable" allowScrollButtonsMobile>
               {schede.map(({ percorso, etichetta }) => (
