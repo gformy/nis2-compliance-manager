@@ -52,7 +52,8 @@ Il profilo demo carica anche, per l'azienda Alfa:
 - le valutazioni di quattro requisiti ACN;
 - due incidenti: uno chiuso, con tutte le trasmissioni al CSIRT, e uno aperto da poche ore, con la pre-notifica in scadenza;
 - un primo invio ACN;
-- organi di amministrazione e quattro documenti di governance: una politica valida, un piano con il riesame in scadenza, uno con il riesame scaduto e una politica da approvare.
+- organi di amministrazione e quattro documenti di governance: una politica valida, un piano con il riesame in scadenza, uno con il riesame scaduto e una politica da approvare;
+- un piano di formazione con sei persone, tre attività e un registro in cui manca la formazione dedicata dei ruoli specializzati.
 
 Registrare un invio spetta al referente NIS. Tra gli utenti demo può farlo solo `admin.demo`: modifica qualcosa nell'inventario, registra un secondo invio e confronta i due dalla scheda *Invii ACN*.
 

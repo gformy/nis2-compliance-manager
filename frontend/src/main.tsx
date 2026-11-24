@@ -10,6 +10,7 @@ import { Layout } from './componenti/Layout'
 import { DettaglioSoggetto, SchedaAnagrafica } from './pagine/DettaglioSoggetto'
 import { ElencoSoggetti } from './pagine/ElencoSoggetti'
 import { SchedaConformita } from './pagine/conformita/SchedaConformita'
+import { SchedaFormazione } from './pagine/formazione/SchedaFormazione'
 import { SchedaGovernance } from './pagine/governance/SchedaGovernance'
 import { DettaglioIncidente } from './pagine/incidenti/DettaglioIncidente'
 import { ElencoIncidenti } from './pagine/incidenti/ElencoIncidenti'
@@ -41,6 +42,7 @@ const router = createBrowserRouter([
           { path: 'fornitori', element: <SchedaFornitori /> },
           { path: 'conformita', element: <SchedaConformita /> },
           { path: 'governance', element: <SchedaGovernance /> },
+          { path: 'formazione', element: <SchedaFormazione /> },
           { path: 'incidenti', element: <ElencoIncidenti /> },
           { path: 'incidenti/:incidenteId', element: <DettaglioIncidente /> },
           { path: 'invii', element: <ElencoInvii /> },
